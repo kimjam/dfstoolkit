@@ -1,0 +1,9 @@
+Package: dfstoolkit
+Title: Functions to clean fantasy sports data and make weekly projections.
+Version: 0.0.0.9000
+Authors@R: person("James", "Kim", email = "jamesykim10@gmail.com")
+Description: This package contains functions to load, clean, and utilize fantasy sports data to make projections
+for use in daily fantasy sports.
+Depends: R (>= 3.2.0)
+License: What license is it under?
+LazyData: true
