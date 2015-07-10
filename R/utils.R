@@ -3,10 +3,11 @@
 #' \code{nfl_query} a utility function to get data from nfl schema
 #'
 #' @param query query to send to database
-#' @param target_date query will only get data at or after this date
+#' @param target_date query will only get data at or after this date. Defaults
+#' to start of 2002 NFL season.
 #' @return results of query in a dataframe
 
-nfl_query <- function(query, target_date) {
+nfl_query <- function(query, target_date = '2002-09-05') {
     
     db <- RMySQL::dbConnect(MySQL(), 
                             user='root',
@@ -26,6 +27,8 @@ nfl_query <- function(query, target_date) {
         dplyr::filter(date >= as.Date(target_date))
     
     RMySQL::dbClearResult(rs)
+    
+    DBI::dbDisconnect(db)
     
     return(data)
 }
@@ -50,4 +53,6 @@ nfl_insert <- function(dataframe, table) {
                          append = TRUE, 
                          row.names=FALSE
     )
+    
+    DBI::dbDisconnect(db)
 } 
