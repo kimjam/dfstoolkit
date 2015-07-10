@@ -7,3 +7,6 @@ for use in daily fantasy sports.
 Depends: R (>= 3.2.0)
 License: What license is it under?
 LazyData: true
+Imports:
+	dplyr
+	RMySQL
