@@ -25,6 +25,8 @@ generate_defstats <- function(target_date) {
                         target_date = target_date
     )
 
+    rbdata[9:ncol(rbdata)] <- apply(rbdata[9:ncol(rbdata)], 2, as.numeric)
+
     qbdef <- qbdata %>%
         dplyr::group_by(
             opp,
@@ -33,15 +35,15 @@ generate_defstats <- function(target_date) {
         dplyr::summarise(
             offense = team[1],
             home = ifelse(home[1] == 1, 0, 1),
-            oppcmp = sum(cmp),
-            oppatt = sum(att),
-            oppyds = sum(yds),
-            opptd = sum(td),
-            oppints = sum(ints),
-            oppru_att = sum(ru_att),
-            oppru_yds = sum(ru_yds),
-            oppru_td = sum(ru_td),
-            opppts = sum(pts)
+            oppcmp = sum(as.numeric(cmp)),
+            oppatt = sum(as.numeric(att)),
+            oppyds = sum(as.numeric(yds)),
+            opptd = sum(as.numeric(td)),
+            oppints = sum(as.numeric(ints)),
+            oppru_att = sum(as.numeric(ru_att)),
+            oppru_yds = sum(as.numeric(ru_yds)),
+            oppru_td = sum(as.numeric(ru_td)),
+            opppts = sum(as.numeric(pts))
         ) %>%
         dplyr::rename(
             defense = opp
@@ -56,14 +58,14 @@ generate_defstats <- function(target_date) {
         dplyr::summarise(
             offense = team[1],
             home = ifelse(home[1] == 1, 0, 1),
-            oppatt = sum(att),
-            oppru_yds = sum(ru_yds),
-            oppru_td = sum(ru_td),
-            opptgt = sum(tgt),
-            opprec = sum(rec),
-            opprec_yds = sum(rec_yds),
-            opprec_td = sum(rec_td),
-            opppts = sum(pts)
+            oppatt = sum(as.numeric(att)),
+            oppru_yds = sum(as.numeric(ru_yds)),
+            oppru_td = sum(as.numeric(ru_td)),
+            opptgt = sum(as.numeric(tgt)),
+            opprec = sum(as.numeric(rec)),
+            opprec_yds = sum(as.numeric(rec_yds)),
+            opprec_td = sum(as.numeric(rec_td)),
+            opppts = sum(as.numeric(pts))
         ) %>%
         dplyr::rename(
             defense = opp
@@ -78,11 +80,11 @@ generate_defstats <- function(target_date) {
         dplyr::summarise(
             offense = team[1],
             home = ifelse(home[1] == 1, 0, 1),
-            opptgt = sum(tgt),
-            opprec = sum(rec),
-            opprec_yds = sum(rec_yds),
-            opprec_td = sum(rec_td),
-            opppts = sum(pts)
+            opptgt = sum(as.numeric(tgt)),
+            opprec = sum(as.numeric(rec)),
+            opprec_yds = sum(as.numeric(rec_yds)),
+            opprec_td = sum(as.numeric(rec_td)),
+            opppts = sum(as.numeric(pts))
         ) %>%
         dplyr::rename(
             defense = opp
@@ -97,11 +99,11 @@ generate_defstats <- function(target_date) {
         dplyr::summarise(
             offense = team[1],
             home = ifelse(home[1] == 1, 0, 1),
-            opptgt = sum(tgt),
-            opprec = sum(rec),
-            opprec_yds = sum(rec_yds),
-            opprec_td = sum(rec_td),
-            opppts = sum(pts)
+            opptgt = sum(as.numeric(tgt)),
+            opprec = sum(as.numeric(rec)),
+            opprec_yds = sum(as.numeric(rec_yds)),
+            opprec_td = sum(as.numeric(rec_td)),
+            opppts = sum(as.numeric(pts))
         ) %>%
         dplyr::rename(
             defense = opp
