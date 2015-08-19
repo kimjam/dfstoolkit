@@ -59,3 +59,49 @@ nfl_insert <- function(dataframe, table) {
 
     DBI::dbDisconnect(db)
 }
+
+#' @title add_join_helpers
+#' @description function to add season and week columns to assist in creating
+#' average tables
+#'
+#' @param df a dataframe to add the columns to
+#' @param sched a dataframe of nfl schedule data
+
+add_join_helpers <- function(df, sched = nfl_query('select * from nflschedule')) {
+    season <- sched %>%
+        dplyr::filter(
+            week == 'season'
+        )
+
+    year <- vector(length = nrow(df))
+    for (i in 1:nrow(df)) {
+        for(n in 1:nrow(season)) {
+            if (df$date[i] >= season$start[n] & df$date[i] <= season$end[n]) {
+                year[i] <- season$year[n]
+            }
+        }
+    }
+
+    df$year <- year
+    weeks <- sched %>%
+        dplyr::filter(
+            week != 'season'
+        )
+
+    week <- vector(length = nrow(df))
+    for (i in 1:nrow(df)) {
+        s_weeks <- weeks %>%
+            dplyr::filter(
+                year == df$year[i]
+            )
+        for (n in 1:nrow(s_weeks)) {
+            if (df$date[i] >= s_weeks$start[n] & df$date[i] <= s_weeks$end[n]) {
+                week[i] <- s_weeks$week[n]
+            }
+        }
+    }
+
+    df$week <- as.numeric(week)
+
+    return(df)
+}
