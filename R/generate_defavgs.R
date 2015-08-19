@@ -69,14 +69,103 @@ generate_defavgs <- function(
         dplyr::arrange(
             year,
             as.numeric(week)
-        )
+        ) %>%
+        as.data.frame()
 
+    qbdefavg[3:ncol(qbdefavg)] <- apply(
+        qbdefavg[3:ncol(qbdefavg)],
+        2,
+        function(x) round(x, digits = 1)
+    )
     rbdefavg <- rbdef %>%
         dplyr::group_by(
             year,
             week
         ) %>%
         dplyr::summarise(
-            oppatt = mean(oppatt, na.rm = TRUE)
-        )
+            oppatt = mean(oppatt, na.rm = TRUE),
+            oppru_yds = mean(oppru_yds, na.rm = TRUE),
+            oppru_td = mean(oppru_td, na.rm = TRUE),
+            opptgt = mean(opptgt, na.rm = TRUE),
+            opprec = mean(opprec, na.rm = TRUE),
+            opprec_yds = mean(opprec_yds, na.rm = TRUE),
+            opprec_td = mean(opprec_td, na.rm = TRUE),
+            opppts = mean(opppts, na.rm = TRUE)
+        ) %>%
+        dplyr::arrange(
+            year,
+            as.numeric(week)
+        ) %>%
+        as.data.frame()
+
+    rbdefavg[3:ncol(rbdefavg)] <- apply(
+        rbdefavg[3:ncol(rbdefavg)],
+        2,
+        function(x) round(x, digits =1)
+    )
+
+    wrdefavg <- wrdef %>%
+        dplyr::group_by(
+            year,
+            week
+        ) %>%
+        dplyr::summarise(
+            opptgt = mean(opptgt, na.rm = TRUE),
+            opprec = mean(opprec, na.rm = TRUE),
+            opprec_yds = mean(opprec_yds, na.rm = TRUE),
+            opprec_td = mean(opprec_td, na.rm = TRUE),
+            opppts = mean(opppts, na.rm = TRUE)
+        ) %>%
+        dplyr::arrange(
+            year,
+            as.numeric(week)
+        ) %>%
+        as.data.frame()
+
+    wrdefavg[3:ncol(wrdefavg)] <- apply(
+        wrdefavg[3:ncol(wrdefavg)],
+        2,
+        function(x) round(x, digits = 1)
+    )
+
+    tedefavg <- tedef %>%
+        dplyr::group_by(
+            year,
+            week
+        ) %>%
+        dplyr::summarise(
+            opptgt = mean(opptgt, na.rm = TRUE),
+            opprec = mean(opprec, na.rm = TRUE),
+            opprec_yds = mean(opprec_yds, na.rm = TRUE),
+            opprec_td = mean(opprec_td, na.rm = TRUE),
+            opppts = mean(opppts, na.rm = TRUE)
+        ) %>%
+        dplyr::arrange(
+            year,
+            as.numeric(week)
+        ) %>%
+        as.data.frame()
+
+    tedefavg[3:ncol(tedefavg)] <- apply(
+        tedefavg[3:ncol(tedefavg)],
+        2,
+        function(x) round(x, digits = 1)
+    )
+
+    nfl_insert(dataframe = qbdefavg,
+               table = 'qbdefavg'
+    )
+
+    nfl_insert(dataframe = rbdefavg,
+               table = 'rbdefavg'
+    )
+
+    nfl_insert(dataframe = wrdefavg,
+               table = 'wrdefavg'
+    )
+
+    nfl_insert(dataframe = tedefavg,
+               table = 'tedefavg'
+    )
+
 }

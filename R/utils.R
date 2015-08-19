@@ -1,3 +1,14 @@
+#' @title clean_conns
+#' @description function to manage db connections to avoid too many connections
+#' error
+
+clean_conns <- function() {
+    all_cons <- DBI::dbListConnections(MySQL())
+    for (con in all_cons) {
+        DBI::dbDisconnect(con)
+    }
+}
+
 #' @title nfl_query
 #' @description
 #' \code{nfl_query} a utility function to get data from nfl schema
@@ -31,7 +42,7 @@ nfl_query <- function(query, target_date = '2002-09-05') {
 
     RMySQL::dbClearResult(rs)
 
-    DBI::dbDisconnect(db)
+    clean_conns()
 
     return(data)
 }
@@ -50,14 +61,14 @@ nfl_insert <- function(dataframe, table) {
                             host='localhost'
     )
 
-    RMySQL::dbWriteTable(conn = db,
-                         name = table,
-                         value = dataframe,
-                         append = TRUE,
-                         row.names=FALSE
+    DBI::dbWriteTable(conn = db,
+                      name = table,
+                      value = dataframe,
+                      append = TRUE,
+                      row.names=FALSE
     )
 
-    DBI::dbDisconnect(db)
+    clean_conns()
 }
 
 #' @title add_join_helpers
@@ -73,35 +84,20 @@ add_join_helpers <- function(df, sched = nfl_query('select * from nflschedule'))
             week == 'season'
         )
 
-    year <- vector(length = nrow(df))
-    for (i in 1:nrow(df)) {
-        for(n in 1:nrow(season)) {
-            if (df$date[i] >= season$start[n] & df$date[i] <= season$end[n]) {
-                year[i] <- season$year[n]
-            }
-        }
+    df[,'year'] <- 0
+    for (i in 1:nrow(season)) {
+        df$year[df$date >= season$start[i] & df$date <= season$end[i]] <- season$year[i]
     }
 
-    df$year <- year
     weeks <- sched %>%
         dplyr::filter(
             week != 'season'
         )
 
-    week <- vector(length = nrow(df))
-    for (i in 1:nrow(df)) {
-        s_weeks <- weeks %>%
-            dplyr::filter(
-                year == df$year[i]
-            )
-        for (n in 1:nrow(s_weeks)) {
-            if (df$date[i] >= s_weeks$start[n] & df$date[i] <= s_weeks$end[n]) {
-                week[i] <- s_weeks$week[n]
-            }
-        }
+    df[, 'week'] <- 0
+    for (i in 1:nrow(weeks)) {
+        df$week[df$date >= weeks$start[i] & df$date <= weeks$end[i]] <- weeks$week[i]
     }
-
-    df$week <- as.numeric(week)
 
     return(df)
 }
