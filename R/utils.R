@@ -101,3 +101,62 @@ add_join_helpers <- function(df, sched = nfl_query('select * from nflschedule'))
 
     return(df)
 }
+
+#' @title shift_one
+#' @description offsets data by one week, adds actual stat columns
+#'
+#' @param df dataframe to offset
+#' @param pts_name name of column that contains fantasy points
+#' @param num_start name of column that starts stats
+#' @param def boolean that indicates if df is a defensive stats dataframe,
+#' default is FALSE
+
+shift_one <- function(df, pts_name, num_start, def = FALSE) {
+    pts_ind <- match(pts_name, names(df))
+    start <- match(num_start, names(df))
+    actual <- df
+    names(actual) <- paste0('act_', names(df))
+
+    df[2:nrow(df), start:pts_ind] <- df[1:(nrow(df) - 1), start:pts_ind]
+
+    if (!def) {
+        df <- cbind(df, actual[start:pts_ind])
+    }
+    df <- tail(df, n = nrow(df) - 1)
+
+    return(df)
+}
+
+#' @title roll_n
+#' @description finds rolling average for previous n weeks, adds actual stat columns
+#'
+#' @param df dataframe to find rolling average
+#' @param n number of weeks to look base prediction on
+#' @param pts_name name of column that contains fantasy points
+#' @param num_start name of column that starts stats
+#' @param def boolean that indicates if df is a defensive stats dataframe,
+#' default is FALSE
+
+roll_n <- function(df, n, pts_name, num_start, def = FALSE) {
+    pts_ind <- match(pts_name, names(df))
+    start <- match(num_start, names(df))
+    actual <- df
+    names(actual) <- paste0('act_', names(df))
+
+    fill <- apply(
+        df[1:(nrow(df) - 1), start:pts_ind],
+        2,
+        zoo::rollmean,
+        k = n
+    ) %>%
+        as.data.frame()
+    fill <- apply(fill, 2, round, digits = 1)
+    df[(n + 1):nrow(df), start:pts_ind] <- fill
+
+    if (!def) {
+        df <- cbind(df, actual[start:pts_ind])
+    }
+    df <- tail(df, n = nrow(df) - n)
+
+    return(df)
+}
