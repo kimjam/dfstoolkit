@@ -160,3 +160,51 @@ roll_n <- function(df, n, pts_name, num_start, def = FALSE) {
 
     return(df)
 }
+
+#' @title weight_def
+#' @description create ddataset for defense
+#'
+#' @param df dataframe weight
+#' @param defavg dataframe containing weekly league averages
+#' @param pts_name name of column containing fantasy points
+#' @param num_start name of column that starts stats
+#' @param window integer 1, 2, or 3 indicating rolling window width
+#' @param def boolean to send to shift_one or roll_n
+
+weight_def <- function(df, defavg, pts_name, num_start, window, def = TRUE) {
+    pts_ind <- match(pts_name, names(df))
+    start <- match(num_start, names(df))
+    num_cols <- ncol(df)
+
+    weeks <- df$week
+    df_year <- df$year[1]
+
+    defavg <- defavg %>%
+        dplyr::filter(
+            year == df_year,
+            week %in% weeks
+        )
+
+
+    names(defavg) <- paste0('avg_', names(defavg))
+    df <- cbind(df, defavg[3:ncol(defavg)])
+
+    for (col in names(df)[start:pts_ind]) {
+        df[, col] <- df[, col] / df[, paste0('avg_', col)]
+    }
+
+    df <- df[1:num_cols]
+
+    if (window == 1) {
+        df <- shift_one(df, pts_name, num_start, def)
+    } else if (window == 2) {
+        df <- roll_n(df, 2, pts_name, num_start, def)
+    } else if (window == 3) {
+        df <- roll_n(df, 3, pts_name, num_start, def)
+    } else {
+        stop('Window must be 1, 2, or 3.')
+    }
+
+    df[is.na(df)] <- 0
+    return(df)
+}
