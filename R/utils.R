@@ -208,3 +208,46 @@ weight_def <- function(df, defavg, pts_name, num_start, window, def = TRUE) {
     df[is.na(df)] <- 0
     return(df)
 }
+
+#' @title fill_def
+#' @description if a position registered no stats, fill row
+#'
+#' @param df dataframe to fill
+#' @param full_sched dataframe showing all of team's opponents
+#' @param sched dataframe used to add year and week columns
+
+fill_def <- function(
+    df,
+    full_sched = nfl_query('select * from vegas'),
+    full_info = nfl_query('select * from qbdef')
+) {
+    order <- names(df)
+    names(full_sched) <- tolower(names(full_sched))
+    base <- full_sched[match(c('date', 'opp', 'team'), names(full_sched))]
+    filled <- base %>%
+        dplyr::left_join(
+            y = df[-match(c('year', 'week'), names(df))],
+            by = c('team' = 'defense', 'date')
+        ) %>%
+        dplyr::rename(
+            defense = team
+        )
+    filled$offense <- filled$opp
+    filled <- filled[-match('opp', names(filled))]
+
+    filled <- filled[match(order, names(filled))]
+    filled <- filled %>%
+        dplyr::arrange(
+            defense,
+            date
+        )
+    full_info <- full_info %>%
+        dplyr::arrange(
+            defense,
+            date
+        )
+    filled$home <- full_info$home
+    filled[is.na(filled)] <- 0
+
+    return(filled)
+}
