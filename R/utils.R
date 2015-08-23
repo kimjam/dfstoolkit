@@ -84,7 +84,7 @@ add_join_helpers <- function(df, sched = nfl_query('select * from nflschedule'))
             week == 'season'
         )
 
-    df[,'year'] <- 0
+    df[, 'year'] <- 0
     for (i in 1:nrow(season)) {
         df$year[df$date >= season$start[i] & df$date <= season$end[i]] <- season$year[i]
     }
@@ -218,15 +218,14 @@ weight_def <- function(df, defavg, pts_name, num_start, window, def = TRUE) {
 
 fill_def <- function(
     df,
-    full_sched = nfl_query('select * from vegas'),
-    full_info = nfl_query('select * from qbdef')
+    full_sched = nfl_query('select * from vegas')
 ) {
     order <- names(df)
     names(full_sched) <- tolower(names(full_sched))
     base <- full_sched[match(c('date', 'opp', 'team'), names(full_sched))]
     filled <- base %>%
         dplyr::left_join(
-            y = df[-match(c('year', 'week'), names(df))],
+            y = df,
             by = c('team' = 'defense', 'date')
         ) %>%
         dplyr::rename(
@@ -241,12 +240,13 @@ fill_def <- function(
             defense,
             date
         )
-    full_info <- full_info %>%
+    full_sched <- full_sched %>%
         dplyr::arrange(
-            defense,
+            team,
             date
         )
-    filled$home <- full_info$home
+    filled$home <- full_sched$home
+    filled <- filled[-match(c('year', 'week'), names(filled))]
     filled[is.na(filled)] <- 0
 
     return(filled)
