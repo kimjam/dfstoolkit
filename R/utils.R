@@ -137,7 +137,15 @@ shift_one <- function(df, pts_name, num_start, def = FALSE) {
 #' @param def boolean that indicates if df is a defensive stats dataframe,
 #' default is FALSE
 
-roll_n <- function(df, n, pts_name, num_start, def = FALSE) {
+roll_n <- function(
+    df,
+    n,
+    pts_name,
+    num_start,
+    weeks,
+    def = FALSE
+) {
+
     pts_ind <- match(pts_name, names(df))
     start <- match(num_start, names(df))
     actual <- df
@@ -155,8 +163,34 @@ roll_n <- function(df, n, pts_name, num_start, def = FALSE) {
 
     if (!def) {
         df <- cbind(df, actual[start:pts_ind])
+        weeks <- weeks %>%
+            dplyr::filter(
+                team == df$team[1],
+                year == df$year[1]
+            ) %>%
+            dplyr::select(
+                week
+            )
+    } else {
+        weeks <- weeks %>%
+            dplyr::filter(
+                team == df$defense[1],
+                year == df$year[1]
+            ) %>%
+            dplyr::select(
+                week
+            )
     }
-    df <- tail(df, n = nrow(df) - n)
+
+    bye <- c(1:17)[!(c(1:17) %in% weeks$week)]
+
+    if (n == 2 & bye < 3 & all(c('1', '3') %in% df$week))  {
+        df <- tail(df, n = (nrow(df) - (n - 1)))
+    } else if (n == 3 & bye < 4 & all(c('1', '4') %in% df$week)) {
+        df <- tail(df, n = (nrow(df) - (n - 1)))
+    } else {
+        df <- tail(df, n = nrow(df) - n)
+    }
 
     return(df)
 }
@@ -171,7 +205,15 @@ roll_n <- function(df, n, pts_name, num_start, def = FALSE) {
 #' @param window integer 1, 2, or 3 indicating rolling window width
 #' @param def boolean to send to shift_one or roll_n
 
-weight_def <- function(df, defavg, pts_name, num_start, window, def = TRUE) {
+weight_def <- function(
+    df,
+    defavg,
+    pts_name,
+    num_start,
+    window,
+    byeweek,
+    def = TRUE
+) {
     pts_ind <- match(pts_name, names(df))
     start <- match(num_start, names(df))
     num_cols <- ncol(df)
@@ -194,18 +236,18 @@ weight_def <- function(df, defavg, pts_name, num_start, window, def = TRUE) {
     }
 
     df <- df[1:num_cols]
+    df[is.na(df)] <- 0
 
     if (window == 1) {
         df <- shift_one(df, pts_name, num_start, def)
     } else if (window == 2) {
-        df <- roll_n(df, 2, pts_name, num_start, def)
+        df <- roll_n(df, 2, pts_name, num_start, byeweek, def)
     } else if (window == 3) {
-        df <- roll_n(df, 3, pts_name, num_start, def)
+        df <- roll_n(df, 3, pts_name, num_start, byeweek, def)
     } else {
         stop('Window must be 1, 2, or 3.')
     }
 
-    df[is.na(df)] <- 0
     return(df)
 }
 
@@ -250,4 +292,38 @@ fill_def <- function(
     filled[is.na(filled)] <- 0
 
     return(filled)
+}
+
+#' @title trim_df
+#' @description trims dataframe and adds group column
+#'
+#' @param df dataframe to trim
+#'
+#' @return trimmed dataframe
+
+trim_df <- function(df) {
+
+    df <- df %>%
+        dplyr::group_by(
+            name,
+            team
+        )
+
+    trimmer <- function(df) {
+        if (nrow(df) > 3) {
+            df <- tail(df, n = 3)
+            df$group <- 3
+        } else if (nrow(df) == 3) {
+            df$group <- 3
+        } else if (nrow(df) == 2) {
+            df$group <- 2
+        } else if (nrow(df) == 1) {
+            df$group <- 1
+        }
+        return(df)
+    }
+
+    df <- dplyr::do(df, trimmer(.))
+
+    return(df)
 }
