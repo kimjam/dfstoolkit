@@ -6,7 +6,9 @@
 #' @param sched dataframe containing nfl schedule data
 #' @param season current season
 #' @param position position to make predictions for
-#' @param def_start column containing first stat column
+#' @param def_start column containing first stat column for defense
+#' @param num_start column containing first stat for player
+#' @param pts_name column name of pts
 #'
 #' @return returns list of dataframes containing one, two, three week based
 #' features
@@ -16,8 +18,10 @@ generate_features <- function(
     sched = nfl_query('select * from nflschedule'),
     season = 2015,
     position,
-    def_start
+    def_start,
+    num_start
 ) {
+
     names(df) <- tolower(names(df))
     names(df)[1] <- 'name'
     df$year <- season
@@ -139,6 +143,8 @@ generate_features <- function(
     names(vegas) <- tolower(names(vegas))
     names(vegas)[match('over/under', names(vegas))] <- 'over.under'
     vegas <- add_join_helpers(vegas)
+    vegas$over.under <- as.numeric(vegas$over.under)
+    vegas$spread <- as.numeric(vegas$spread)
 
     def <- def %>%
         dplyr::left_join(
@@ -159,14 +165,6 @@ generate_features <- function(
 
     oneweek <- oneweek %>%
         dplyr::left_join(
-            y = def %>%
-                dplyr::select(
-                    -home,
-                    -offense
-                ),
-            by = c('opp' = 'defense', 'date')
-        ) %>%
-        dplyr::left_join(
             y = vegas %>%
                 dplyr::select(
                     date,
@@ -175,6 +173,14 @@ generate_features <- function(
                     over.under
                 ),
             by = c('date', 'team')
+        ) %>%
+        dplyr::left_join(
+            y = def %>%
+                dplyr::select(
+                    -home,
+                    -offense
+                ),
+            by = c('opp' = 'defense', 'date')
         ) %>%
         dplyr::select(
             -year,
@@ -183,14 +189,6 @@ generate_features <- function(
 
     twoweek <- twoweek %>%
         dplyr::left_join(
-            y = def %>%
-                dplyr::select(
-                    -home,
-                    -offense
-                ),
-            by = c('opp' = 'defense', 'date')
-        ) %>%
-        dplyr::left_join(
             y = vegas %>%
                 dplyr::select(
                     date,
@@ -200,21 +198,27 @@ generate_features <- function(
                 ),
             by = c('date', 'team')
         ) %>%
+        dplyr::left_join(
+            y = def %>%
+                dplyr::select(
+                    -home,
+                    -offense
+                ),
+            by = c('opp' = 'defense', 'date')
+        ) %>%
         dplyr::select(
             -year,
-            -week
+            -week,
+            -g,
+            -date,
+            -opp
+        ) %>%
+        dplyr::summarise_each(
+            funs(mean(., na.rm = TRUE))
         )
 
     threeweek <- threeweek %>%
         dplyr::left_join(
-            y = def %>%
-                dplyr::select(
-                    -home,
-                    -offense
-                ),
-            by = c('opp' = 'defense', 'date')
-        ) %>%
-        dplyr::left_join(
             y = vegas %>%
                 dplyr::select(
                     date,
@@ -224,9 +228,23 @@ generate_features <- function(
                 ),
             by = c('date', 'team')
         ) %>%
+        dplyr::left_join(
+            y = def %>%
+                dplyr::select(
+                    -home,
+                    -offense
+                ),
+            by = c('opp' = 'defense', 'date')
+        ) %>%
         dplyr::select(
             -year,
-            -week
+            -week,
+            -g,
+            -date,
+            -opp
+        ) %>%
+        dplyr::summarise_each(
+            funs(mean(., na.rm = TRUE))
         )
 
     return(
@@ -236,5 +254,4 @@ generate_features <- function(
             threeweek = threeweek
         )
     )
-
 }

@@ -11,3 +11,4 @@ Imports:
 	dplyr
 	lubridate
 	RMySQL
+	xlsx
