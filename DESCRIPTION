@@ -10,5 +10,4 @@ LazyData: true
 Imports:
 	dplyr,
 	lubridate,
-	RMySQL,
-	xlsx
+	RMySQL
