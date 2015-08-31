@@ -25,7 +25,7 @@ generate_features <- function(
     names(df) <- tolower(names(df))
     names(df)[1] <- 'name'
     df$year <- season
-    names <- df$name
+    names <- tolower(gsub("'", "", df$name))
 
     # get starting date for current week
     date <- sched %>%
@@ -56,6 +56,10 @@ generate_features <- function(
 
     # remove excess rows, split into groups
     data <- trim_df(data)
+    data[match(num_start, names(data)):ncol(data)] <- sapply(
+        data[match(num_start, names(data)):ncol(data)],
+        as.numeric
+    )
     data <- add_join_helpers(data)
 
     oneweek <- data %>%
