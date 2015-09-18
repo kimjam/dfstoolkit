@@ -18,10 +18,12 @@ generate_defavgs <- function(
     target_date = '2002-08-31'
 ) {
 
+    end_date <- as.character(as.POSIXct(target_date) + lubridate::ddays(7))
     print('Adding join helpers to qbdef...')
     qbdef <- qbdef %>%
         dplyr::filter(
-            date >= target_date
+            date >= target_date,
+            date < end_date
         ) %>%
         add_join_helpers()
     print('Done.')
@@ -29,7 +31,8 @@ generate_defavgs <- function(
     print('Adding join helpers to rbdef...')
     rbdef <- rbdef %>%
         dplyr::filter(
-            date >= target_date
+            date >= target_date,
+            date < end_date
         ) %>%
         add_join_helpers()
     print('Done.')
@@ -37,7 +40,8 @@ generate_defavgs <- function(
     print('Adding join helpers to wrdef...')
     wrdef <- wrdef %>%
         dplyr::filter(
-            date >= target_date
+            date >= target_date,
+            date < end_date
         ) %>%
         add_join_helpers()
     print('Done.')
@@ -45,7 +49,8 @@ generate_defavgs <- function(
     print('Adding join helpers to tedef...')
     tedef <- tedef %>%
         dplyr::filter(
-            date >= target_date
+            date >= target_date,
+            date < end_date
         ) %>%
         add_join_helpers()
     print('Done.')

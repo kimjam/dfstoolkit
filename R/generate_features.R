@@ -5,7 +5,7 @@
 #' predictions for
 #' @param sched dataframe containing nfl schedule data
 #' @param season current season
-#' @param position position to make predictions for
+#' @param pos position to make predictions for
 #' @param def_start column containing first stat column for defense
 #' @param num_start column containing first stat for player
 #' @param pts_name column name of pts
@@ -17,15 +17,20 @@ generate_features <- function(
     df,
     sched = nfl_query('select * from nflschedule'),
     season = 2015,
-    position,
+    pos,
     def_start,
     num_start
 ) {
 
-    names(df) <- tolower(names(df))
-    names(df)[1] <- 'name'
-    df$year <- season
-    names <- tolower(gsub("'", "", df$name))
+    names <- df %>%
+        dplyr::filter(
+            position == pos
+        ) %>%
+        dplyr::select(
+            name
+        ) %>%
+        as.matrix() %>%
+        as.vector()
 
     # get starting date for current week
     date <- sched %>%
@@ -40,12 +45,15 @@ generate_features <- function(
     df$date <- date$start
 
     # get date for 4 weeks ago
-    start <- as.Date(df$date[1]) - lubridate::dweeks(4)
+    t_date <- as.character(as.POSIXct(df$date[1]) - lubridate::ddays(7))
+    start <- as.character(as.POSIXct(df$date[1]) - lubridate::dweeks(4))
 
     # get player data
     data <- data.frame()
     for (name in names) {
-        query <- paste0('select * from ', position, ' where name = \'', name, '\'')
+        query <- paste0(
+            'SELECT * FROM ', pos, ' WHERE name = \'', name, '\''
+        )
         data <- rbind(data,
                       nfl_query(
                           query,
@@ -54,6 +62,42 @@ generate_features <- function(
         )
     }
 
+    vegas <- nfl_query(
+        paste0('select * from sportsbook where date >= ', '\'', df$date[1], '\'')
+    )
+    names(vegas) <- tolower(names(vegas))
+    # names(vegas)[match('over/under', names(vegas))] <- 'over.under'
+    vegas <- add_join_helpers(vegas)
+    vegas$over.under <- as.numeric(vegas$over.under)
+    vegas$spread <- as.numeric(vegas$spread)
+
+    data <- data %>%
+        dplyr::left_join(
+            y = vegas %>%
+                dplyr::select(
+                    team,
+                    date
+                ),
+            by = c('team')
+        ) %>%
+        dplyr::rename(
+            date = date.x
+        )
+
+    data$date <- data$date.y
+    data <- data %>%
+        dplyr::select(
+            -date.y
+        )
+
+    for (i in 1:nrow(data)) {
+        x <- match(data$team[i], vegas$team)
+        if ((x %% 2) == 1) {
+            data$opp[i] <- vegas$team[x+1]
+        } else if ((x %% 2) == 0) {
+            data$opp[i] <- vegas$team[x-1]
+        }
+    }
     # remove excess rows, split into groups
     data <- trim_df(data)
     data[match(num_start, names(data)):ncol(data)] <- sapply(
@@ -98,7 +142,7 @@ generate_features <- function(
             team
         )
 
-    if (position == 'qb') {
+    if (pos == 'QB') {
         def <- nfl_query(
             paste0('select * from qbdef where date >= ', '\'', start, '\'')
         )
@@ -106,7 +150,7 @@ generate_features <- function(
         defavg <- nfl_query(
             paste0('select * from qbdefavg where year = ', season)
         )
-    } else if (position == 'rb') {
+    } else if (pos == 'RB') {
         def <- nfl_query(
             paste0('select * from rbdef where date >= ', '\'', start, '\'')
         )
@@ -114,7 +158,7 @@ generate_features <- function(
         defavg <- nfl_query(
             paste0('select * from rbdefavg where year = ', season)
         )
-    } else if (position == 'wr') {
+    } else if (pos == 'WR') {
         def <- nfl_query(
             paste0('select * from wrdef where date >= ', '\'', start, '\'')
         )
@@ -122,7 +166,7 @@ generate_features <- function(
         defavg <- nfl_query(
             paste0('select * from wrdefavg where year = ', season)
         )
-    } else if (position == 'te') {
+    } else if (pos == 'TE') {
         def <- nfl_query(
             paste0('select * from tedef where date >= ', '\'', start, '\'')
         )
@@ -141,15 +185,6 @@ generate_features <- function(
 
     remove_ind <- match('year', names(def))
 
-    vegas <- nfl_query(
-        paste0('select * from vegas where date >= ', '\'', start, '\'')
-    )
-    names(vegas) <- tolower(names(vegas))
-    names(vegas)[match('over/under', names(vegas))] <- 'over.under'
-    vegas <- add_join_helpers(vegas)
-    vegas$over.under <- as.numeric(vegas$over.under)
-    vegas$spread <- as.numeric(vegas$spread)
-
     def <- def %>%
         dplyr::left_join(
             y = defavg %>% dplyr::select(-year),
@@ -166,6 +201,34 @@ generate_features <- function(
     def[is.na(def)] <- 0
 
     def <- def[-c(remove_ind:ncol(def))]
+
+    def <- def %>%
+        dplyr::left_join(
+            y = vegas %>%
+                dplyr::select(
+                    team,
+                    date
+                ),
+            by = c('defense' = 'team')
+        ) %>%
+        dplyr::rename(
+            date = date.x
+        )
+
+    def$date <- def$date.y
+    def <- def %>%
+        dplyr::select(
+            -date.y
+        )
+
+    for (i in 1:nrow(def)) {
+        x <- match(def$defense[i], vegas$team)
+        if ((x %% 2) == 1) {
+            def$offense[i] <- vegas$team[x+1]
+        } else if ((x %% 2) == 0) {
+            def$offense[i] <- vegas$team[x-1]
+        }
+    }
 
     oneweek <- oneweek %>%
         dplyr::left_join(
@@ -250,6 +313,10 @@ generate_features <- function(
         dplyr::summarise_each(
             funs(mean(., na.rm = TRUE))
         )
+
+    oneweek[is.na(oneweek)] <- 0
+    twoweek[is.na(twoweek)] <- 0
+    threeweek[is.na(threeweek)] <- 0
 
     return(
         list(

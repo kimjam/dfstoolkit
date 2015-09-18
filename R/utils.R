@@ -34,10 +34,14 @@ nfl_query <- function(query, target_date = '2002-09-05') {
     data <- RMySQL::fetch(rs, n = -1)
 
     query_split = unlist(strsplit(query, ' '))
-    pos_tables = c('qb', 'rb', 'wr', 'te')
-    if (query_split[match('from', query_split) + 1] %in% pos_tables) {
+    pos_tables = c('QB', 'RB', 'WR', 'TE')
+#     end_date <- as.character(as.POSIXct(target_date) + lubridate::ddays(7))
+    if (query_split[match('FROM', query_split) + 1] %in% pos_tables) {
         data <- data %>%
-            dplyr::filter(date >= target_date)
+            dplyr::filter(
+                date >= target_date#,
+                #date < end_date
+            )
     }
 
     RMySQL::dbClearResult(rs)
@@ -210,6 +214,7 @@ fill_def <- function(
 
 trim_df <- function(df) {
 
+    df <- df[!duplicated(df), ]
     df <- df %>%
         dplyr::group_by(
             name,
