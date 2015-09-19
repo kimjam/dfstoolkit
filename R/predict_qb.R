@@ -186,7 +186,7 @@ predict_qb <- function(qb_dflist, price) {
         dplyr::inner_join(
             y = qb_pred,
             by = c('name')
-        ) %>%
+        )
 
     return(qb_pred)
 }
