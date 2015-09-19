@@ -61,7 +61,7 @@ predict_te <- function(te_dflist, price) {
                 )) * 6
         )
     } else {
-        oneweek_ind <- data.frame()
+        twoweek_ind <- data.frame()
     }
 
     if (nrow(threeweek) > 0) {
@@ -84,28 +84,28 @@ predict_te <- function(te_dflist, price) {
                 )) * 6
         )
     } else {
-        oneweek_ind <- data.frame()
+        threeweek_ind <- data.frame()
     }
 
     oneweek_pred <- data.frame(
         name = oneweek$name,
         team = oneweek$team,
-        svm = oneweek_svm,
-        ind = oneweek_ind
+        svm.1 = oneweek_svm,
+        ind.1 = oneweek_ind
     )
 
     twoweek_pred <- data.frame(
         name = twoweek$name,
         team = twoweek$team,
-        svm = twoweek_svm,
-        ind = twoweek_ind
+        svm.2 = twoweek_svm,
+        ind.2 = twoweek_ind
     )
 
     threeweek_pred <- data.frame(
         name = threeweek$name,
         team = threeweek$team,
-        svm = threeweek_svm,
-        ind = threeweek_ind
+        svm.3 = threeweek_svm,
+        ind.3 = threeweek_ind
     )
 
     te_pred <- rbind(oneweek_pred, twoweek_pred, threeweek_pred)

@@ -26,6 +26,10 @@ generate_defstats <- function(target_date) {
     )
 
     rbdata[9:ncol(rbdata)] <- apply(rbdata[9:ncol(rbdata)], 2, as.numeric)
+    qbdata <- qbdata[!duplicated(qbdata), ]
+    rbdata <- qbdata[!duplicated(rbdata), ]
+    wrdata <- qbdata[!duplicated(wrdata), ]
+    tedata <- qbdata[!duplicated(tedata), ]
 
     qbdef <- qbdata %>%
         dplyr::group_by(
@@ -109,6 +113,52 @@ generate_defstats <- function(target_date) {
             defense = opp
         ) %>%
         as.data.frame()
+
+    if (nrow(tedef) < 32) {
+        fill <- unique(rbdata$team)[!(unique(rbdata$team) %in% unique(tedata$team))]
+
+        opp <- rbdata %>%
+            dplyr::filter(
+                team %in% fill
+            ) %>%
+            dplyr::select(opp) %>%
+            unique() %>%
+            as.matrix() %>%
+            as.vector()
+
+        dates <- rbdata %>%
+            dplyr::filter(
+                team %in% fill
+            ) %>%
+            dplyr::select(date) %>%
+            unique() %>%
+            as.matrix() %>%
+            as.vector()
+
+        home <- rbdata %>%
+            dplyr::filter(
+                team %in% fill
+            ) %>%
+            dplyr::select(home) %>%
+            unique() %>%
+            as.matrix() %>%
+            as.vector()
+
+        tefill <- data.frame(
+            defense = fill,
+            date = dates,
+            offense = opp,
+            home = home,
+            opptgt = 0,
+            opprec = 0,
+            opprec_yds = 0,
+            opprec_td = 0,
+            opppts = 0
+        )
+
+        tedef <- rbind(tedef, tefill)
+    }
+
 
     nfl_insert(dataframe = qbdef,
                table = 'qbdef'

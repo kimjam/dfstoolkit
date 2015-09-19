@@ -2,13 +2,17 @@
 #' @description make predictions for wr
 #'
 #' @param wr_dflist list of wr dataframes (one ,two, three week based)
-#' @param price df of wr prices
+#' @param price df of player prices
 #'
 #' @return returns dataframe
 
 predict_wr <- function(wr_dflist, price) {
 
     price$name <- tolower(gsub("'", "", price$name))
+    price <- price %>%
+        dplyr::filter(
+            position == 'WR'
+        )
 
     oneweek <- wr_dflist[['oneweek']] %>% as.data.frame()
     twoweek <- wr_dflist[['twoweek']] %>% as.data.frame()
@@ -61,7 +65,7 @@ predict_wr <- function(wr_dflist, price) {
                 )) * 6
         )
     } else {
-        oneweek_ind <- data.frame()
+        twoweek_ind <- data.frame()
     }
 
     if (nrow(threeweek) > 0) {
@@ -84,28 +88,28 @@ predict_wr <- function(wr_dflist, price) {
                 )) * 6
         )
     } else {
-        oneweek_ind <- data.frame()
+        threeweek_ind <- data.frame()
     }
 
     oneweek_pred <- data.frame(
         name = oneweek$name,
         team = oneweek$team,
-        svm = oneweek_svm,
-        ind = oneweek_ind
+        svm.1 = oneweek_svm,
+        ind.1 = oneweek_ind
     )
 
     twoweek_pred <- data.frame(
         name = twoweek$name,
         team = twoweek$team,
-        svm = twoweek_svm,
-        ind = twoweek_ind
+        svm.2 = twoweek_svm,
+        ind.2 = twoweek_ind
     )
 
     threeweek_pred <- data.frame(
         name = threeweek$name,
         team = threeweek$team,
-        svm = threeweek_svm,
-        ind = threeweek_ind
+        svm.3 = threeweek_svm,
+        ind.3 = threeweek_ind
     )
 
     wr_pred <- rbind(oneweek_pred, twoweek_pred, threeweek_pred)
