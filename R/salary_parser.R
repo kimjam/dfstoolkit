@@ -17,6 +17,11 @@ salary_parser <- function(platform, week) {
             dplyr::filter(
                 position != 'K'
             )
+        
+        salary$name[salary$position == 'DST'] <- sapply(
+            salary$name[salary$position == 'DST'],
+            function(x) gsub(' ', '', x)
+        )
 
     } else if (platform == 'FD') {
         query <- paste0(
