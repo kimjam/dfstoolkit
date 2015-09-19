@@ -9,10 +9,10 @@ predict_qb(qb_dflist, price)
 \arguments{
 \item{qb_dflist}{list of qb dataframes (one ,two, three week based)}
 
-\item{price}{df of qb prices}
+\item{price}{df of player prices}
 }
 \value{
-returns dataframe
+returns dataframe of predictions
 }
 \description{
 make predictions for qb

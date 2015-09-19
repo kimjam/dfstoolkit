@@ -8,7 +8,6 @@
 #' @param pos position to make predictions for
 #' @param def_start column containing first stat column for defense
 #' @param num_start column containing first stat for player
-#' @param pts_name column name of pts
 #'
 #' @return returns list of dataframes containing one, two, three week based
 #' features

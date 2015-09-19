@@ -3,7 +3,7 @@
 #'
 #' @param platform string indicating 'DK' or 'FD'
 #' @param week the week you are making predictions for
-#' @return parsed df to be used by other dfstoolkit functions
+#' @return dataframe of parsed df to be used by other dfstoolkit functions
 
 salary_parser <- function(platform, week) {
     if (platform == 'DK') {

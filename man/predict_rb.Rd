@@ -9,10 +9,10 @@ predict_rb(rb_dflist, price)
 \arguments{
 \item{rb_dflist}{list of rb dataframes (one ,two, three week based)}
 
-\item{price}{df of rb prices}
+\item{price}{df of player prices}
 }
 \value{
-returns dataframe
+returns dataframe of predictions
 }
 \description{
 make predictions for rb

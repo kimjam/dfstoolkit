@@ -4,7 +4,7 @@
 #' @param te_dflist list of te dataframes (one ,two, three week based)
 #' @param price df of te prices
 #'
-#' @return returns dataframe
+#' @return returns dataframe of predictions
 
 predict_te <- function(te_dflist, price) {
 

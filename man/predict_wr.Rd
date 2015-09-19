@@ -9,10 +9,10 @@ predict_wr(wr_dflist, price)
 \arguments{
 \item{wr_dflist}{list of wr dataframes (one ,two, three week based)}
 
-\item{price}{df of wr prices}
+\item{price}{df of player prices}
 }
 \value{
-returns dataframe
+returns dataframe of predictions
 }
 \description{
 make predictions for wr

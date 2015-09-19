@@ -4,7 +4,7 @@
 #' @param rb_dflist list of rb dataframes (one ,two, three week based)
 #' @param price df of player prices
 #'
-#' @return returns dataframe
+#' @return returns dataframe of predictions
 
 predict_rb <- function(rb_dflist, price) {
 

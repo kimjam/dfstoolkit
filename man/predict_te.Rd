@@ -12,7 +12,7 @@ predict_te(te_dflist, price)
 \item{price}{df of te prices}
 }
 \value{
-returns dataframe
+returns dataframe of predictions
 }
 \description{
 make predictions for te
