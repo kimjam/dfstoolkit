@@ -27,9 +27,9 @@ generate_defstats <- function(target_date) {
 
     rbdata[9:ncol(rbdata)] <- apply(rbdata[9:ncol(rbdata)], 2, as.numeric)
     qbdata <- qbdata[!duplicated(qbdata), ]
-    rbdata <- qbdata[!duplicated(rbdata), ]
-    wrdata <- qbdata[!duplicated(wrdata), ]
-    tedata <- qbdata[!duplicated(tedata), ]
+    rbdata <- rbdata[!duplicated(rbdata), ]
+    wrdata <- wrdata[!duplicated(wrdata), ]
+    tedata <- tedata[!duplicated(tedata), ]
 
     qbdef <- qbdata %>%
         dplyr::group_by(
