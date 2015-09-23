@@ -20,7 +20,7 @@ clean_conns <- function() {
 
 nfl_query <- function(query, target_date = '2002-09-05') {
 
-    db <- RMySQL::dbConnect(MySQL(),
+    db <- DBI::dbConnect(RMySQL::MySQL(),
                             user='root',
                             password='Datmysqljawn97%!',
                             dbname='nfl',
