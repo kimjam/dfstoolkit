@@ -20,11 +20,12 @@ clean_conns <- function() {
 
 nfl_query <- function(query, target_date = '2002-09-05') {
 
-    db <- DBI::dbConnect(RMySQL::MySQL(),
-                            user='root',
-                            password='Datmysqljawn97%!',
-                            dbname='nfl',
-                            host='localhost'
+    db <- DBI::dbConnect(
+        drv = RMySQL::MySQL(),
+        user='root',
+        password='Datmysqljawn97%!',
+        dbname='nfl',
+        host='localhost'
     )
 
     rs <- RMySQL::dbSendQuery(conn = db,
@@ -58,11 +59,12 @@ nfl_query <- function(query, target_date = '2002-09-05') {
 #' @param table the name of the table to insert the dataframe into
 
 nfl_insert <- function(dataframe, table) {
-    db <- RMySQL::dbConnect(MySQL(),
-                            user='root',
-                            password='Datmysqljawn97%!',
-                            dbname='nfl',
-                            host='localhost'
+    db <- DBI::dbConnect(
+        drv = RMySQL::MySQL(),
+        user='root',
+        password='Datmysqljawn97%!',
+        dbname='nfl',
+        host='localhost'
     )
 
     DBI::dbWriteTable(conn = db,
