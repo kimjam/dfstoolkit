@@ -14,11 +14,12 @@ predict_te <- function(te_dflist, price) {
     twoweek <- te_dflist[['twoweek']] %>% as.data.frame()
     threeweek <- te_dflist[['threeweek']] %>% as.data.frame()
 
-    oneweek_svm <- predict(te_svm1, newdata = oneweek)
-    twoweek_svm <- predict(te_svm2, newdata = twoweek)
-    threeweek_svm <- predict(te_svm3, newdata = threeweek)
+    null <- data.frame(matrix(ncol = 4))
+    names(null) <- c('name', 'position', 'svm', 'ind')
+    null <- null[-1, ]
 
     if (nrow(oneweek) > 0) {
+        oneweek_svm <- predict(te_svm1, newdata = oneweek)
 
         td <- predict(te_td1, newdata = oneweek, 'probs')
         oneweek_ind <- (
@@ -37,11 +38,19 @@ predict_te <- function(te_dflist, price) {
                     )
                 )) * 6
         )
+
+        oneweek_pred <- data.frame(
+            name = oneweek$name,
+            team = oneweek$team,
+            svm = oneweek_svm,
+            ind = oneweek_ind
+        )
     } else {
-        oneweek_ind <- data.frame()
+        oneweek_pred <- null
     }
 
     if (nrow(twoweek) > 0) {
+        twoweek_svm <- predict(te_svm2, newdata = twoweek)
 
         td <- predict(te_td2, newdata = twoweek, 'probs')
         twoweek_ind <- (
@@ -60,11 +69,19 @@ predict_te <- function(te_dflist, price) {
                     )
                 )) * 6
         )
+
+        twoweek_pred <- data.frame(
+            name = twoweek$name,
+            team = twoweek$team,
+            svm = twoweek_svm,
+            ind = twoweek_ind
+        )
     } else {
-        twoweek_ind <- data.frame()
+        twoweek_pred <- null
     }
 
     if (nrow(threeweek) > 0) {
+        threeweek_svm <- predict(te_svm3, newdata = threeweek)
 
         td <- predict(te_td3, newdata = threeweek, 'probs')
         threeweek_ind <- (
@@ -83,30 +100,16 @@ predict_te <- function(te_dflist, price) {
                     )
                 )) * 6
         )
+
+        threeweek_pred <- data.frame(
+            name = threeweek$name,
+            team = threeweek$team,
+            svm = threeweek_svm,
+            ind = threeweek_ind
+        )
     } else {
-        threeweek_ind <- data.frame()
+        threeweek_pred <- null
     }
-
-    oneweek_pred <- data.frame(
-        name = oneweek$name,
-        team = oneweek$team,
-        svm.1 = oneweek_svm,
-        ind.1 = oneweek_ind
-    )
-
-    twoweek_pred <- data.frame(
-        name = twoweek$name,
-        team = twoweek$team,
-        svm.2 = twoweek_svm,
-        ind.2 = twoweek_ind
-    )
-
-    threeweek_pred <- data.frame(
-        name = threeweek$name,
-        team = threeweek$team,
-        svm.3 = threeweek_svm,
-        ind.3 = threeweek_ind
-    )
 
     te_pred <- rbind(oneweek_pred, twoweek_pred, threeweek_pred)
     te_pred$name <- as.character(te_pred$name)

@@ -213,6 +213,35 @@ generate_features <- function(
             df = oneweek_def,
             v = vegas
         )
+        oneweek <- oneweek %>%
+            dplyr::left_join(
+                y = vegas %>%
+                    dplyr::select(
+                        date,
+                        team,
+                        spread,
+                        over.under
+                    ),
+                by = c('date', 'team')
+            ) %>%
+            dplyr::left_join(
+                y = oneweek_def %>%
+                    dplyr::select(
+                        -home,
+                        -offense,
+                        -year,
+                        -week
+                    ),
+                by = c('opp' = 'defense', 'date')
+            ) %>%
+            dplyr::select(
+                -year,
+                -week
+            )
+
+        oneweek[is.na(oneweek)] <- 0
+    } else {
+        oneweek <- data.frame()
     }
 
     if (nrow(twoweek) > 0) {
@@ -250,6 +279,38 @@ generate_features <- function(
                 num_name = num_start
             )
         )
+        twoweek <- twoweek %>%
+            dplyr::left_join(
+                y = vegas %>%
+                    dplyr::select(
+                        date,
+                        team,
+                        spread,
+                        over.under
+                    ),
+                by = c('date', 'team')
+            ) %>%
+            dplyr::left_join(
+                y = twoweek_def %>%
+                    dplyr::select(
+                        -home,
+                        -offense,
+                        -year,
+                        -week
+                    ),
+                by = c('opp' = 'defense', 'date')
+            ) %>%
+            dplyr::select(
+                -year,
+                -week,
+                -g,
+                -date,
+                -opp
+            )
+
+        twoweek[is.na(twoweek)] <- 0
+    } else {
+        twoweek <- data.frame()
     }
 
     if (nrow(threeweek) > 0) {
@@ -287,98 +348,42 @@ generate_features <- function(
                 num_name = num_start
             )
         )
+        threeweek <- threeweek %>%
+            dplyr::left_join(
+                y = vegas %>%
+                    dplyr::select(
+                        date,
+                        team,
+                        spread,
+                        over.under
+                    ),
+                by = c('date', 'team')
+            ) %>%
+            dplyr::left_join(
+                y = threeweek_def %>%
+                    dplyr::select(
+                        -home,
+                        -offense,
+                        -year,
+                        -week
+                    ),
+                by = c('opp' = 'defense', 'date')
+            ) %>%
+            dplyr::select(
+                -year,
+                -week,
+                -g,
+                -date,
+                -opp
+            )#%>%
+        #         dplyr::summarise_each(
+        #             funs(mean(., na.rm = TRUE))
+        #         )
+
+        threeweek[is.na(threeweek)] <- 0
+    } else {
+        threeweek <- data.frame()
     }
-
-    oneweek <- oneweek %>%
-        dplyr::left_join(
-            y = vegas %>%
-                dplyr::select(
-                    date,
-                    team,
-                    spread,
-                    over.under
-                ),
-            by = c('date', 'team')
-        ) %>%
-        dplyr::left_join(
-            y = oneweek_def %>%
-                dplyr::select(
-                    -home,
-                    -offense,
-                    -year,
-                    -week
-                ),
-            by = c('opp' = 'defense', 'date')
-        ) %>%
-        dplyr::select(
-            -year,
-            -week
-        )
-
-    twoweek <- twoweek %>%
-        dplyr::left_join(
-            y = vegas %>%
-                dplyr::select(
-                    date,
-                    team,
-                    spread,
-                    over.under
-                ),
-            by = c('date', 'team')
-        ) %>%
-        dplyr::left_join(
-            y = twoweek_def %>%
-                dplyr::select(
-                    -home,
-                    -offense,
-                    -year,
-                    -week
-                ),
-            by = c('opp' = 'defense', 'date')
-        ) %>%
-        dplyr::select(
-            -year,
-            -week,
-            -g,
-            -date,
-            -opp
-        )
-
-    threeweek <- threeweek %>%
-        dplyr::left_join(
-            y = vegas %>%
-                dplyr::select(
-                    date,
-                    team,
-                    spread,
-                    over.under
-                ),
-            by = c('date', 'team')
-        ) %>%
-        dplyr::left_join(
-            y = threeweek_def %>%
-                dplyr::select(
-                    -home,
-                    -offense,
-                    -year,
-                    -week
-                ),
-            by = c('opp' = 'defense', 'date')
-        ) %>%
-        dplyr::select(
-            -year,
-            -week,
-            -g,
-            -date,
-            -opp
-         ) #%>%
-#         dplyr::summarise_each(
-#             funs(mean(., na.rm = TRUE))
-#         )
-
-    oneweek[is.na(oneweek)] <- 0
-    twoweek[is.na(twoweek)] <- 0
-    threeweek[is.na(threeweek)] <- 0
 
     return(
         list(

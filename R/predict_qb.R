@@ -18,159 +18,177 @@ predict_qb <- function(qb_dflist, price) {
     twoweek <- qb_dflist[['twoweek']] %>% as.data.frame()
     threeweek <- qb_dflist[['threeweek']] %>% as.data.frame()
 
-    oneweek_svm <- predict(qb_svm1, newdata = oneweek)
-    twoweek_svm <- predict(qb_svm2, newdata = twoweek)
-    threeweek_svm <- predict(qb_svm3, newdata = threeweek)
+    null <- data.frame(matrix(ncol=4))
+    names(null) = c('name', 'team', 'svm', 'ind')
+    null <- null[-1, ]
 
-    td <- predict(qb_td1, newdata = oneweek, 'probs')
-    int <- predict(qb_int1, newdata = oneweek, 'probs')
-    rtd <- predict(qb_rutd1, newdata = oneweek, 'probs')
-    oneweek_ind <- (
-        predict(qb_yds1, newdata = oneweek) / 25 +
-            predict(qb_ruyds1, newdata = oneweek) / 10 +
-            (td %*% matrix(
-                ifelse(
-                    is.null(ncol(td)),
-                    0:(length(td) - 1),
-                    0:(ncol(td) - 1)
-                ),
-                nrow = ifelse(is.null(ncol(td)),
-                              length(td),
-                              ncol(td)
-                )
-            )) * 4 -
-            (int %*% matrix(
-                ifelse(
-                    is.null(ncol(td)),
-                    0:(length(int) - 1),
-                    0:(ncol(int) - 1)
-                ),
-                nrow = ifelse(
-                    is.null(ncol(td)),
-                    length(int),
-                    ncol(int)
-                )
-            )) +
-            (rtd %*% matrix(
-                ifelse(
-                    is.null(ncol(rtd)),
-                    0:(length(rtd) - 1),
-                    0:(ncol(rtd) - 1)
-                ),
-                nrow = ifelse(
-                    is.null(ncol(rtd)),
-                    length(rtd),
-                    ncol(rtd)
-                )
-            )) * 6
-    )
+    if (nrow(oneweek) > 0) {
+        oneweek_svm <- predict(qb_svm1, newdata = oneweek)
 
-    td <- predict(qb_td2, newdata = twoweek, 'probs')
-    int <- predict(qb_int2, newdata = twoweek, 'probs')
-    rtd <- predict(qb_rutd2, newdata = twoweek, 'probs')
-    twoweek_ind <- (
-        predict(qb_yds2, newdata = twoweek) / 25 +
-            predict(qb_ruyds2, newdata = twoweek) / 10 +
-            (td %*% matrix(
-                ifelse(
-                    is.null(ncol(td)),
-                    0:(length(td) - 1),
-                    0:(ncol(td) - 1)
-                ),
-                nrow = ifelse(is.null(ncol(td)),
-                              length(td),
-                              ncol(td)
-                )
-            )) * 4 -
-            (int %*% matrix(
-                ifelse(
-                    is.null(ncol(td)),
-                    0:(length(int) - 1),
-                    0:(ncol(int) - 1)
-                ),
-                nrow = ifelse(
-                    is.null(ncol(td)),
-                    length(int),
-                    ncol(int)
-                )
-            )) +
-            (rtd %*% matrix(
-                ifelse(
-                    is.null(ncol(rtd)),
-                    0:(length(rtd) - 1),
-                    0:(ncol(rtd) - 1)
-                ),
-                nrow = ifelse(
-                    is.null(ncol(rtd)),
-                    length(rtd),
-                    ncol(rtd)
-                )
-            )) * 6
-    )
+        td <- predict(qb_td1, newdata = oneweek, 'probs')
+        int <- predict(qb_int1, newdata = oneweek, 'probs')
+        rtd <- predict(qb_rutd1, newdata = oneweek, 'probs')
+        oneweek_ind <- (
+            predict(qb_yds1, newdata = oneweek) / 25 +
+                predict(qb_ruyds1, newdata = oneweek) / 10 +
+                (td %*% matrix(
+                    ifelse(
+                        is.null(ncol(td)),
+                        0:(length(td) - 1),
+                        0:(ncol(td) - 1)
+                    ),
+                    nrow = ifelse(is.null(ncol(td)),
+                                  length(td),
+                                  ncol(td)
+                    )
+                )) * 4 -
+                (int %*% matrix(
+                    ifelse(
+                        is.null(ncol(td)),
+                        0:(length(int) - 1),
+                        0:(ncol(int) - 1)
+                    ),
+                    nrow = ifelse(
+                        is.null(ncol(td)),
+                        length(int),
+                        ncol(int)
+                    )
+                )) +
+                (rtd %*% matrix(
+                    ifelse(
+                        is.null(ncol(rtd)),
+                        0:(length(rtd) - 1),
+                        0:(ncol(rtd) - 1)
+                    ),
+                    nrow = ifelse(
+                        is.null(ncol(rtd)),
+                        length(rtd),
+                        ncol(rtd)
+                    )
+                )) * 6
+        )
 
-    td <- predict(qb_td3, newdata = threeweek, 'probs')
-    int <- predict(qb_int3, newdata = threeweek, 'probs')
-    rtd <- predict(qb_rutd3, newdata = threeweek, 'probs')
-    threeweek_ind <- (
-        predict(qb_yds3, newdata = threeweek) / 25 +
-            predict(qb_ruyds3, newdata = threeweek) / 10 +
-            (td %*% matrix(
-                ifelse(
-                    is.null(ncol(td)),
-                    0:(length(td) - 1),
-                    0:(ncol(td) - 1)
-                ),
-                nrow = ifelse(is.null(ncol(td)),
-                              length(td),
-                              ncol(td)
-                )
-            )) * 4 -
-            (int %*% matrix(
-                ifelse(
-                    is.null(ncol(td)),
-                    0:(length(int) - 1),
-                    0:(ncol(int) - 1)
-                ),
-                nrow = ifelse(
-                    is.null(ncol(td)),
-                    length(int),
-                    ncol(int)
-                )
-            )) +
-            (rtd %*% matrix(
-                ifelse(
-                    is.null(ncol(rtd)),
-                    0:(length(rtd) - 1),
-                    0:(ncol(rtd) - 1)
-                ),
-                nrow = ifelse(
-                    is.null(ncol(rtd)),
-                    length(rtd),
-                    ncol(rtd)
-                )
-            )) * 6
-    )
+        oneweek_pred <- data.frame(
+            name = oneweek$name,
+            team = oneweek$team,
+            svm = oneweek_svm,
+            ind = oneweek_ind
+        )
+    } else {
+        oneweek_pred <- null
+    }
 
-    oneweek_pred <- data.frame(
-        name = oneweek$name,
-        team = oneweek$team,
-        svm.1 = oneweek_svm,
-        ind.1 = oneweek_ind
-    )
+    if (nrow(twoweek) > 0) {
+        twoweek_svm <- predict(qb_svm2, newdata = twoweek)
 
-    twoweek_pred <- data.frame(
-        name = twoweek$name,
-        team = twoweek$team,
-        svm.2 = twoweek_svm,
-        ind.2 = twoweek_ind
-    )
+        td <- predict(qb_td2, newdata = twoweek, 'probs')
+        int <- predict(qb_int2, newdata = twoweek, 'probs')
+        rtd <- predict(qb_rutd2, newdata = twoweek, 'probs')
+        twoweek_ind <- (
+            predict(qb_yds2, newdata = twoweek) / 25 +
+                predict(qb_ruyds2, newdata = twoweek) / 10 +
+                (td %*% matrix(
+                    ifelse(
+                        is.null(ncol(td)),
+                        0:(length(td) - 1),
+                        0:(ncol(td) - 1)
+                    ),
+                    nrow = ifelse(is.null(ncol(td)),
+                                  length(td),
+                                  ncol(td)
+                    )
+                )) * 4 -
+                (int %*% matrix(
+                    ifelse(
+                        is.null(ncol(td)),
+                        0:(length(int) - 1),
+                        0:(ncol(int) - 1)
+                    ),
+                    nrow = ifelse(
+                        is.null(ncol(td)),
+                        length(int),
+                        ncol(int)
+                    )
+                )) +
+                (rtd %*% matrix(
+                    ifelse(
+                        is.null(ncol(rtd)),
+                        0:(length(rtd) - 1),
+                        0:(ncol(rtd) - 1)
+                    ),
+                    nrow = ifelse(
+                        is.null(ncol(rtd)),
+                        length(rtd),
+                        ncol(rtd)
+                    )
+                )) * 6
+        )
 
-    threeweek_pred <- data.frame(
-        name = threeweek$name,
-        team = threeweek$team,
-        svm.3 = threeweek_svm,
-        ind.3 = threeweek_ind
-    )
+        twoweek_pred <- data.frame(
+            name = twoweek$name,
+            team = twoweek$team,
+            svm = twoweek_svm,
+            ind = twoweek_ind
+        )
+    } else {
+        twoweek_pred <- null
+    }
+
+    if (nrow(threeweek) > 0) {
+        threeweek_svm <- predict(qb_svm3, newdata = threeweek)
+
+        td <- predict(qb_td3, newdata = threeweek, 'probs')
+        int <- predict(qb_int3, newdata = threeweek, 'probs')
+        rtd <- predict(qb_rutd3, newdata = threeweek, 'probs')
+        threeweek_ind <- (
+            predict(qb_yds3, newdata = threeweek) / 25 +
+                predict(qb_ruyds3, newdata = threeweek) / 10 +
+                (td %*% matrix(
+                    ifelse(
+                        is.null(ncol(td)),
+                        0:(length(td) - 1),
+                        0:(ncol(td) - 1)
+                    ),
+                    nrow = ifelse(is.null(ncol(td)),
+                                  length(td),
+                                  ncol(td)
+                    )
+                )) * 4 -
+                (int %*% matrix(
+                    ifelse(
+                        is.null(ncol(td)),
+                        0:(length(int) - 1),
+                        0:(ncol(int) - 1)
+                    ),
+                    nrow = ifelse(
+                        is.null(ncol(td)),
+                        length(int),
+                        ncol(int)
+                    )
+                )) +
+                (rtd %*% matrix(
+                    ifelse(
+                        is.null(ncol(rtd)),
+                        0:(length(rtd) - 1),
+                        0:(ncol(rtd) - 1)
+                    ),
+                    nrow = ifelse(
+                        is.null(ncol(rtd)),
+                        length(rtd),
+                        ncol(rtd)
+                    )
+                )) * 6
+        )
+
+        threeweek_pred <- data.frame(
+            name = threeweek$name,
+            team = threeweek$team,
+            svm = threeweek_svm,
+            ind = threeweek_ind
+        )
+    } else {
+        threeweek_pred <- null
+    }
 
     qb_pred <- rbind(oneweek_pred, twoweek_pred, threeweek_pred)
     qb_pred$name <- as.character(qb_pred$name)
