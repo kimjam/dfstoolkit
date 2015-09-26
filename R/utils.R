@@ -260,7 +260,7 @@ roll_n <- function(
 ) {
     rolled <- df[nrow(df), ]
     pts_ind <- match(pts_name, names(df))
-    start <- match(num_start, names(df))
+    start <- match(num_name, names(df))
 
     fill <- apply(
         df[, start:pts_ind],

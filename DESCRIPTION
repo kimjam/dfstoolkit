@@ -13,4 +13,5 @@ Imports:
 	e1071,
 	lubridate,
 	nnet,
-	RMySQL
+	RMySQL,
+	zoo
