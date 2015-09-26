@@ -241,3 +241,79 @@ trim_df <- function(df) {
 
     return(df)
 }
+
+#' @title roll_n
+#' @description find means for players and defenses
+#'
+#' @param df dataframe to find rolling average
+#' @param n number of weeks
+#' @param pts_name name of column that contains fantasy points
+#' @param num_start name of column that starts stats
+#'
+#' @return returns rolled dataframe
+
+roll_n <- function(
+    df,
+    n,
+    pts_name,
+    num_name
+) {
+    rolled <- df[nrow(df), ]
+    pts_ind <- match(pts_name, names(df))
+    start <- match(num_start, names(df))
+
+    fill <- apply(
+        df[, start:pts_ind],
+        2,
+        zoo::rollmean,
+        k = n
+    ) %>%
+        as.data.frame()
+
+    fill <- apply(fill, 2, round, digits = 2)
+    rolled[, start:pts_ind] <- fill
+
+    return(rolled)
+}
+
+#' @title oppdate_fixer
+#' @description updates opponent and date for defenses
+#'
+#' @param def dataframe of defensive stats
+#' @param v vegas dataframe
+#'
+#' @return returns updated dataframe
+oppdate_fixer <- function(
+    df,
+    v
+) {
+    df <- df %>%
+        dplyr::left_join(
+            y = v %>%
+                dplyr::select(
+                    team,
+                    date
+                ),
+            by = c('defense' = 'team')
+        ) %>%
+        dplyr::rename(
+            date = date.x
+        )
+
+    df$date <- df$date.y
+    df <- df %>%
+        dplyr::select(
+            -date.y
+        )
+
+    for (i in 1:nrow(df)) {
+        x <- match(df$defense[i], v$team)
+        if ((x %% 2) == 1) {
+            df$offense[i] <- v$team[x+1]
+        } else if ((x %% 2) == 0) {
+            df$offense[i] <- v$team[x-1]
+        }
+    }
+
+    return(df)
+}

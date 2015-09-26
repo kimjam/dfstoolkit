@@ -61,6 +61,15 @@ generate_features <- function(
         )
     }
 
+    data <- add_join_helpers(data)
+
+    # remove excess rows, split into groups
+    data <- trim_df(data)
+    data[match(num_start, names(data)):ncol(data)] <- sapply(
+        data[match(num_start, names(data)):ncol(data)],
+        as.numeric
+    )
+
     vegas <- nfl_query(
         paste0('select * from sportsbook where date >= ', '\'', df$date[1], '\'')
     )
@@ -97,13 +106,6 @@ generate_features <- function(
             data$opp[i] <- vegas$team[x-1]
         }
     }
-    # remove excess rows, split into groups
-    data <- trim_df(data)
-    data[match(num_start, names(data)):ncol(data)] <- sapply(
-        data[match(num_start, names(data)):ncol(data)],
-        as.numeric
-    )
-    data <- add_join_helpers(data)
 
     oneweek <- data %>%
         dplyr::filter(
@@ -199,34 +201,92 @@ generate_features <- function(
 
     def[is.na(def)] <- 0
 
-    def <- def[-c(remove_ind:ncol(def))]
+    def <- def[-c((remove_ind+2):ncol(def))]
 
-    def <- def %>%
-        dplyr::left_join(
-            y = vegas %>%
-                dplyr::select(
-                    team,
-                    date
-                ),
-            by = c('defense' = 'team')
-        ) %>%
-        dplyr::rename(
-            date = date.x
+    if (nrow(oneweek) > 0) {
+        oneweek_def <- def %>%
+            dplyr::filter(
+                week == max(week)
+            )
+
+        oneweek_def <- oppdate_fixer(
+            df = oneweek_def,
+            v = vegas
+        )
+    }
+
+    if (nrow(twoweek) > 0) {
+        twoweek_def <- def %>%
+            dplyr::group_by(
+                defense
+            )
+
+        twoweek_def <- dplyr::do(
+            twoweek_def,
+            roll_n(
+                df = .,
+                n = 2,
+                pts_name = 'opppts',
+                num_name = def_start
+            )
         )
 
-    def$date <- def$date.y
-    def <- def %>%
-        dplyr::select(
-            -date.y
+        twoweek_def <- oppdate_fixer(
+            df = twoweek_def,
+            v = vegas
         )
 
-    for (i in 1:nrow(def)) {
-        x <- match(def$defense[i], vegas$team)
-        if ((x %% 2) == 1) {
-            def$offense[i] <- vegas$team[x+1]
-        } else if ((x %% 2) == 0) {
-            def$offense[i] <- vegas$team[x-1]
-        }
+        twoweek <- twoweek %>%
+            dplyr::group_by(
+                name
+            )
+
+        twoweek <- dplyr::do(
+            twoweek,
+            roll_n(
+                df = .,
+                n = 2,
+                pts_name = 'pts',
+                num_name = num_start
+            )
+        )
+    }
+
+    if (nrow(threeweek) > 0) {
+        threeweek_def <- def %>%
+            dplyr::group_by(
+                defense
+            )
+
+        threeweek_def <- dplyr::do(
+            threeweekdef,
+            roll_n(
+                df = .,
+                n = 3,
+                pts_name = 'opppts',
+                num_name = def_start
+            )
+        )
+
+        threeweek_def <- oppdate_fixer(
+            df = threeweek_def,
+            v = vegas
+        )
+
+        threeweek <- threeweek %>%
+            dplyr::group_by(
+                name
+            )
+
+        threeweek <- dplyr::do(
+            threeweek,
+            roll_n(
+                df = .,
+                n = 3,
+                pts_name = 'pts',
+                num_name = num_start
+            )
+        )
     }
 
     oneweek <- oneweek %>%
@@ -241,10 +301,12 @@ generate_features <- function(
             by = c('date', 'team')
         ) %>%
         dplyr::left_join(
-            y = def %>%
+            y = oneweek_def %>%
                 dplyr::select(
                     -home,
-                    -offense
+                    -offense,
+                    -year,
+                    -week
                 ),
             by = c('opp' = 'defense', 'date')
         ) %>%
@@ -265,10 +327,12 @@ generate_features <- function(
             by = c('date', 'team')
         ) %>%
         dplyr::left_join(
-            y = def %>%
+            y = twoweek_def %>%
                 dplyr::select(
                     -home,
-                    -offense
+                    -offense,
+                    -year,
+                    -week
                 ),
             by = c('opp' = 'defense', 'date')
         ) %>%
@@ -278,9 +342,6 @@ generate_features <- function(
             -g,
             -date,
             -opp
-        ) %>%
-        dplyr::summarise_each(
-            funs(mean(., na.rm = TRUE))
         )
 
     threeweek <- threeweek %>%
@@ -295,10 +356,12 @@ generate_features <- function(
             by = c('date', 'team')
         ) %>%
         dplyr::left_join(
-            y = def %>%
+            y = threeweek_def %>%
                 dplyr::select(
                     -home,
-                    -offense
+                    -offense,
+                    -year,
+                    -week
                 ),
             by = c('opp' = 'defense', 'date')
         ) %>%
@@ -308,10 +371,10 @@ generate_features <- function(
             -g,
             -date,
             -opp
-        ) %>%
-        dplyr::summarise_each(
-            funs(mean(., na.rm = TRUE))
-        )
+         ) #%>%
+#         dplyr::summarise_each(
+#             funs(mean(., na.rm = TRUE))
+#         )
 
     oneweek[is.na(oneweek)] <- 0
     twoweek[is.na(twoweek)] <- 0

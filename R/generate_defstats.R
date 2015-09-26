@@ -117,9 +117,10 @@ generate_defstats <- function(target_date) {
     if (nrow(tedef) < 32) {
         fill <- unique(rbdata$team)[!(unique(rbdata$team) %in% unique(tedata$team))]
 
-        opp <- rbdata %>%
+        opp <- qbdata %>%
             dplyr::filter(
-                team %in% fill
+                team %in% fill,
+                !duplicated(team)
             ) %>%
             dplyr::select(opp) %>%
             unique() %>%
@@ -128,19 +129,19 @@ generate_defstats <- function(target_date) {
 
         dates <- rbdata %>%
             dplyr::filter(
-                team %in% fill
+                team %in% fill,
+                !duplicated(team)
             ) %>%
             dplyr::select(date) %>%
-            unique() %>%
             as.matrix() %>%
             as.vector()
 
         home <- rbdata %>%
             dplyr::filter(
-                team %in% fill
+                team %in% fill,
+                !duplicated(team)
             ) %>%
             dplyr::select(home) %>%
-            unique() %>%
             as.matrix() %>%
             as.vector()
 
