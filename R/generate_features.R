@@ -8,7 +8,6 @@
 #' @param pos position to make predictions for
 #' @param def_start column containing first stat column for defense
 #' @param num_start column containing first stat for player
-#' @param bye_teams character vector of teams on bye
 #'
 #' @return returns list of dataframes containing one, two, three week based
 #' features
@@ -19,8 +18,7 @@ generate_features <- function(
     season = 2015,
     pos,
     def_start,
-    num_start,
-    bye_teams
+    num_start
 ) {
 
     names <- df %>%
@@ -62,12 +60,6 @@ generate_features <- function(
                       )
         )
     }
-
-    # filter out players on bye
-    data <- data %>%
-        dplyr::filter(
-            !(team %in% bye_teams)
-        )
 
     data <- add_join_helpers(data)
 
