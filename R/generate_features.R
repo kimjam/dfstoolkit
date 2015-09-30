@@ -8,6 +8,7 @@
 #' @param pos position to make predictions for
 #' @param def_start column containing first stat column for defense
 #' @param num_start column containing first stat for player
+#' @param byes teams on bye
 #'
 #' @return returns list of dataframes containing one, two, three week based
 #' features
@@ -18,7 +19,8 @@ generate_features <- function(
     season = 2015,
     pos,
     def_start,
-    num_start
+    num_start,
+    byes
 ) {
 
     names <- df %>%
@@ -211,7 +213,8 @@ generate_features <- function(
 
         oneweek_def <- oppdate_fixer(
             df = oneweek_def,
-            v = vegas
+            v = vegas,
+            bye_teams = byes
         )
         oneweek <- oneweek %>%
             dplyr::left_join(
@@ -262,7 +265,8 @@ generate_features <- function(
 
         twoweek_def <- oppdate_fixer(
             df = twoweek_def,
-            v = vegas
+            v = vegas,
+            bye_teams = byes
         )
 
         twoweek <- twoweek %>%
@@ -331,7 +335,8 @@ generate_features <- function(
 
         threeweek_def <- oppdate_fixer(
             df = threeweek_def,
-            v = vegas
+            v = vegas,
+            bye_teams = byes
         )
 
         threeweek <- threeweek %>%

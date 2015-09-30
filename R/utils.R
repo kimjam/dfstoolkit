@@ -281,12 +281,19 @@ roll_n <- function(
 #'
 #' @param def dataframe of defensive stats
 #' @param v vegas dataframe
+#' @param bye_teams teams that are on bye
 #'
 #' @return returns updated dataframe
 oppdate_fixer <- function(
     df,
-    v
+    v,
+    bye_teams
 ) {
+    df <- df %>%
+        dplyr::filter(
+            !(team %in% bye_teams)
+        )
+
     df <- df %>%
         dplyr::left_join(
             y = v %>%
