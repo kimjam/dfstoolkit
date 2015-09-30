@@ -291,7 +291,7 @@ oppdate_fixer <- function(
 ) {
     df <- df %>%
         dplyr::filter(
-            !(team %in% bye_teams)
+            !(defense %in% bye_teams)
         )
 
     df <- df %>%
