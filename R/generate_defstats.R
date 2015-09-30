@@ -146,9 +146,9 @@ generate_defstats <- function(target_date) {
             as.vector()
 
         tefill <- data.frame(
-            defense = fill,
+            defense = opp,
             date = dates,
-            offense = opp,
+            offense = fill,
             home = home,
             opptgt = 0,
             opprec = 0,
