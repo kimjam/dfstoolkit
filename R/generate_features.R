@@ -324,7 +324,7 @@ generate_features <- function(
             )
 
         threeweek_def <- dplyr::do(
-            threeweekdef,
+            threeweek_def,
             roll_n(
                 df = .,
                 n = 3,
