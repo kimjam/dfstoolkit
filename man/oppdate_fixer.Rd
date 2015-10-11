@@ -4,10 +4,12 @@
 \alias{oppdate_fixer}
 \title{oppdate_fixer}
 \usage{
-oppdate_fixer(df, v)
+oppdate_fixer(df, v, bye_teams)
 }
 \arguments{
 \item{v}{vegas dataframe}
+
+\item{bye_teams}{teams that are on bye}
 
 \item{def}{dataframe of defensive stats}
 }

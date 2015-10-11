@@ -5,7 +5,7 @@
 \title{generate_features}
 \usage{
 generate_features(df, sched = nfl_query("select * from nflschedule"),
-  season = 2015, pos, def_start, num_start)
+  season = 2015, pos, def_start, num_start, byes)
 }
 \arguments{
 \item{df}{dataframe containing names / teams of players to make
@@ -20,6 +20,8 @@ predictions for}
 \item{def_start}{column containing first stat column for defense}
 
 \item{num_start}{column containing first stat for player}
+
+\item{byes}{teams on bye}
 }
 \value{
 returns list of dataframes containing one, two, three week based
