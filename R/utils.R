@@ -77,6 +77,59 @@ nfl_insert <- function(dataframe, table) {
     clean_conns()
 }
 
+#' @title nba_query
+#' @descritpion function to make queries to nba schema
+#' @param query query to send to database
+#' @return results of query in a dataframe
+
+nba_query <- function(query) {
+
+    db <- DBI::dbConnect(
+        drv = RMySQL::MySQL(),
+        user='root',
+        password='Datmysqljawn97%!',
+        dbname='nba',
+        host='localhost'
+    )
+
+    rs <- RMySQL::dbSendQuery(conn = db,
+                              statement = query
+    )
+
+    data <- RMySQL::fetch(rs, n = -1)
+
+    RMySQL::dbClearResult(rs)
+
+    clean_conns()
+
+    return(data)
+}
+
+#' @title nba_insert
+#' @description insert data to nba database
+#'
+#' @param dataframe dataframe to insert
+#' @param table the name of the table to insert into
+
+nba_insert <- function(dataframe, table) {
+    db <- DBI::dbConnect(
+        drv = RMySQL::MySQL(),
+        user='root',
+        password='Datmysqljawn97%!',
+        dbname='nba',
+        host='localhost'
+    )
+
+    DBI::dbWriteTable(conn = db,
+                      name = table,
+                      value = dataframe,
+                      append = TRUE,
+                      row.names=FALSE
+    )
+
+    clean_conns()
+}
+
 #' @title add_join_helpers
 #' @description function to add season and week columns to assist in creating
 #' average tables
