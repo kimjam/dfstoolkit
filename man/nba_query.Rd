@@ -12,4 +12,7 @@ nba_query(query)
 \value{
 results of query in a dataframe
 }
+\description{
+function to make queries to nba schema
+}
 

@@ -78,7 +78,7 @@ nfl_insert <- function(dataframe, table) {
 }
 
 #' @title nba_query
-#' @descritpion function to make queries to nba schema
+#' @description function to make queries to nba schema
 #' @param query query to send to database
 #' @return results of query in a dataframe
 
