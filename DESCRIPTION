@@ -15,5 +15,6 @@ Imports:
     lubridate,
     nnet,
     RMySQL,
-    zoo
+    zoo,
+    lpSolve
 RoxygenNote: 5.0.1
