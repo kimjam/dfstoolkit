@@ -4,13 +4,12 @@
 \alias{nfl_query}
 \title{nfl_query}
 \usage{
-nfl_query(query, target_date = "2002-09-05")
+nfl_query(db_path = Sys.getenv("SQLITE_DB"), query)
 }
 \arguments{
-\item{query}{query to send to database}
+\item{db_path}{Path to sqlite database. Defaults to SQLITE_DB variable in .Renviron.}
 
-\item{target_date}{query will only get data at or after this date. Defaults
-to start of 2002 NFL season.}
+\item{query}{query to send to database}
 }
 \value{
 results of query in a dataframe
