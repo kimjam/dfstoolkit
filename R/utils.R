@@ -1,133 +1,43 @@
-#' @title clean_conns
-#' @description function to manage db connections to avoid too many connections
-#' error
-
-clean_conns <- function() {
-    all_cons <- DBI::dbListConnections(MySQL())
-    for (con in all_cons) {
-        DBI::dbDisconnect(con)
-    }
-}
-
 #' @title nfl_query
 #' @description
 #' \code{nfl_query} a utility function to get data from nfl schema
 #'
+#' @param db_path Path to sqlite database. Defaults to SQLITE_DB variable in .Renviron.
 #' @param query query to send to database
-#' @param target_date query will only get data at or after this date. Defaults
-#' to start of 2002 NFL season.
 #' @return results of query in a dataframe
 
-nfl_query <- function(query, target_date = '2002-09-05') {
+nfl_query <- function(
+    db_path = Sys.getenv('SQLITE_DB'),
+    query
+) {
+    con <- DBI::dbConnect(drv = RSQLite::SQLite(),
+                          dbname = db_name)
 
-    db <- DBI::dbConnect(
-        drv = RMySQL::MySQL(),
-        user='root',
-        password='Datmysqljawn97%!',
-        dbname='nfl',
-        host='localhost'
-    )
+    results <- DBI::dbGetQuery(con, query)
 
-    rs <- RMySQL::dbSendQuery(conn = db,
-                              statement = query
-    )
-
-    data <- RMySQL::fetch(rs, n = -1)
-
-    query_split = unlist(strsplit(query, ' '))
-    pos_tables = c('QB', 'RB', 'WR', 'TE')
-#     end_date <- as.character(as.POSIXct(target_date) + lubridate::ddays(7))
-    if (query_split[match('FROM', query_split) + 1] %in% pos_tables) {
-        data <- data %>%
-            dplyr::filter(
-                date >= target_date#,
-                #date < end_date
-            )
-    }
-
-    RMySQL::dbClearResult(rs)
-
-    clean_conns()
-
-    return(data)
+    return(results)
 }
+
 
 #' @title nfl_insert
 #' @description \code{nfl_insert} a utility function to insert data into nfl schema
 #'
-#' @param dataframe a dataframe that contains the data to be inserted into table
-#' @param table the name of the table to insert the dataframe into
+#' @param db_path Path to sqlite database. Defaults to SQLITE_DB variable in .Renviron.
+#' @param table Name of table to write data to.
+#' @param df The dataframe to write.
 
-nfl_insert <- function(dataframe, table) {
-    db <- DBI::dbConnect(
-        drv = RMySQL::MySQL(),
-        user='root',
-        password='Datmysqljawn97%!',
-        dbname='nfl',
-        host='localhost'
-    )
+nfl_insert <- function(
+    db_name = Sys.getenv('SQLITE_DB'),
+    table,
+    df
+) {
+    con <- DBI::dbConnect(drv = RSQLite::SQLite(),
+                          dbname = db_name)
 
-    DBI::dbWriteTable(conn = db,
+    DBI::dbWriteTable(conn = con,
                       name = table,
-                      value = dataframe,
-                      append = TRUE,
-                      row.names=FALSE
-    )
-
-    clean_conns()
-}
-
-#' @title nba_query
-#' @description function to make queries to nba schema
-#' @param query query to send to database
-#' @return results of query in a dataframe
-
-nba_query <- function(query) {
-
-    db <- DBI::dbConnect(
-        drv = RMySQL::MySQL(),
-        user='root',
-        password='Datmysqljawn97%!',
-        dbname='nba',
-        host='localhost'
-    )
-
-    rs <- RMySQL::dbSendQuery(conn = db,
-                              statement = query
-    )
-
-    data <- RMySQL::fetch(rs, n = -1)
-
-    RMySQL::dbClearResult(rs)
-
-    clean_conns()
-
-    return(data)
-}
-
-#' @title nba_insert
-#' @description insert data to nba database
-#'
-#' @param dataframe dataframe to insert
-#' @param table the name of the table to insert into
-
-nba_insert <- function(dataframe, table) {
-    db <- DBI::dbConnect(
-        drv = RMySQL::MySQL(),
-        user='root',
-        password='Datmysqljawn97%!',
-        dbname='nba',
-        host='localhost'
-    )
-
-    DBI::dbWriteTable(conn = db,
-                      name = table,
-                      value = dataframe,
-                      append = TRUE,
-                      row.names=FALSE
-    )
-
-    clean_conns()
+                      value = df,
+                      append = TRUE)
 }
 
 #' @title add_join_helpers

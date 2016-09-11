@@ -4,12 +4,14 @@
 \alias{nfl_insert}
 \title{nfl_insert}
 \usage{
-nfl_insert(dataframe, table)
+nfl_insert(db_name = Sys.getenv("SQLITE_DB"), table, df)
 }
 \arguments{
-\item{dataframe}{a dataframe that contains the data to be inserted into table}
+\item{table}{Name of table to write data to.}
 
-\item{table}{the name of the table to insert the dataframe into}
+\item{df}{The dataframe to write.}
+
+\item{db_path}{Path to sqlite database. Defaults to SQLITE_DB variable in .Renviron.}
 }
 \description{
 \code{nfl_insert} a utility function to insert data into nfl schema

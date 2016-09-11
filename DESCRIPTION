@@ -8,13 +8,16 @@ Depends:
     R (>= 3.2.0)
 License: What license is it under?
 LazyData: true
+Depends:
+    ggplot2,
+    magrittr
 Imports:
     DBI,
     dplyr,
     e1071,
     lubridate,
     nnet,
-    RMySQL,
+    RSQLite,
     zoo,
     lpSolve
 RoxygenNote: 5.0.1
