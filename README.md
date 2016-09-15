@@ -1,4 +1,4 @@
 # dfstoolkit
-Personal R package to load and clean fantasy sports data to make projections for daily fantasy sports.
 
-Database is populated using python [web scrapers](https://www.github.com/kimjam/dfs_scraper).
+[![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
+
