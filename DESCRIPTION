@@ -5,7 +5,7 @@ Authors@R: person("James", "Kim", role = c('aut', 'cre'), email = "jamesykim10@g
 Description: This package contains functions to load, clean, and utilize fantasy
     sports data to make projections for use in daily fantasy sports.
 Depends:
-    R (>= 3.2.0)
+    R (>= 3.3.1)
 License: What license is it under?
 LazyData: true
 Depends:
@@ -14,10 +14,8 @@ Depends:
 Imports:
     DBI,
     dplyr,
-    e1071,
     lubridate,
-    nnet,
     RSQLite,
-    zoo,
+    rvest,
     lpSolve
 RoxygenNote: 5.0.1
