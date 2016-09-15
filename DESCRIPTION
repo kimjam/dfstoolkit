@@ -14,8 +14,10 @@ Depends:
 Imports:
     DBI,
     dplyr,
+    lpSolve,
     lubridate,
+    purrr,
     RSQLite,
     rvest,
-    lpSolve
+    tidyr
 RoxygenNote: 5.0.1

@@ -37,3 +37,16 @@ nfl_insert <- function(
                       value = df,
                       append = TRUE)
 }
+
+#' @title convert_to_date
+#' @description Utility function to change integer to date.
+#'
+#' @param df dataframe to fix date for.
+#' @param colname Name of date column. Defaults to 'date'.
+#'
+#' @return Returns dataframe with date column fixed.
+convert_to_date <- function(df, colname = 'date') {
+    df[[colname]] %<>% as.POSIXct(x = ., origin = '1970-01-01')
+
+    return(df)
+}
