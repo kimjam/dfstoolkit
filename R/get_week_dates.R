@@ -46,7 +46,7 @@ get_week_dates <- function(year, insert = FALSE) {
             season = year
         )
 
-    if (insert == TRUE) {
+    if (insert) {
         db_insert(table = 'nfl_week_date', df = week_date)
         invisible(week_date)
     } else {
