@@ -16,15 +16,13 @@ get_boxscore_links <- function(year, week = 1:17) {
         rvest::html_nodes('table') %>%
         .[[1]] %>%
         rvest::html_table() %>%
-        .[1] %>%
-        dplyr::filter(!Week %in% c('Week', ''),
-                      !is.na(as.numeric(Week)))
+        janitor::clean_names() %>%
+        dplyr::filter(!week %in% c('Week', ''),
+                      !is.na(as.numeric(week)))
 
-    mask <- table$Week %in% week
+    mask <- table$week %in% week
 
-    boxscore_links <- xml2::read_html(
-        url
-    ) %>%
+    boxscore_links <- xml2::read_html(url) %>%
         rvest::html_nodes('.center a') %>%
         rvest::html_attr('href') %>%
         lapply(
