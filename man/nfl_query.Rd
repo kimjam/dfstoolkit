@@ -2,12 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{nfl_query}
 \alias{nfl_query}
-\title{nfl_query}
+\title{dfs_query}
 \usage{
-nfl_query(db_path = Sys.getenv("SQLITE_DB"), query)
+nfl_query(db_path = Sys.getenv("DFS_DB"), query)
 }
 \arguments{
-\item{db_path}{Path to sqlite database. Defaults to SQLITE_DB variable in .Renviron.}
+\item{db_path}{Path to sqlite database. Defaults to DFS_DB variable in .Renviron.}
 
 \item{query}{query to send to database}
 }
@@ -15,6 +15,6 @@ nfl_query(db_path = Sys.getenv("SQLITE_DB"), query)
 results of query in a dataframe
 }
 \description{
-\code{nfl_query} a utility function to get data from nfl schema
+Function to get data from dfs db.
 }
 

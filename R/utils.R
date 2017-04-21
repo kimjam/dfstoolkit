@@ -1,16 +1,17 @@
-#' @title nfl_query
-#' @description
-#' \code{nfl_query} a utility function to get data from nfl schema
+#' @title dfs_query
+#' @description Function to get data from dfs db.
 #'
-#' @param db_path Path to sqlite database. Defaults to SQLITE_DB variable in .Renviron.
+#' @param db_path Path to sqlite database. Defaults to DFS_DB variable in .Renviron.
 #' @param query query to send to database
+#'
 #' @return results of query in a dataframe
+#' @export
 nfl_query <- function(
-    db_path = Sys.getenv('SQLITE_DB'),
+    db_path = Sys.getenv('DFS_DB'),
     query
 ) {
     con <- DBI::dbConnect(drv = RSQLite::SQLite(),
-                          dbname = db_name)
+                          dbname = db_path)
 
     results <- DBI::dbGetQuery(con, query)
 
@@ -18,35 +19,37 @@ nfl_query <- function(
 }
 
 
-#' @title nfl_insert
-#' @description \code{nfl_insert} a utility function to insert data into nfl schema
+#' @title dfs_insert
+#' @description Function to insert data into dfs db.
 #'
-#' @param db_path Path to sqlite database. Defaults to SQLITE_DB variable in .Renviron.
+#' @param db_path Path to sqlite database. Defaults to DFS_DB variable in .Renviron.
 #' @param table Name of table to write data to.
 #' @param df The dataframe to write.
+#' @param ... additional parameters for DBI::dbWriteTAble
+#'
+#' @export
 nfl_insert <- function(
-    db_name = Sys.getenv('SQLITE_DB'),
+    db_path = Sys.getenv('DFS_DB'),
     table,
-    df
+    df,
+    ...
 ) {
     con <- DBI::dbConnect(drv = RSQLite::SQLite(),
-                          dbname = db_name)
+                          dbname = db_path)
 
     DBI::dbWriteTable(conn = con,
                       name = table,
                       value = df,
-                      append = TRUE)
+                      ...)
 }
 
-#' @title convert_to_date
+#' @title sqlite2posix
 #' @description Utility function to change integer to date.
 #'
-#' @param df dataframe to fix date for.
-#' @param colname Name of date column. Defaults to 'date'.
+#' @param x numeric value to change to POSIXct
 #'
 #' @return Returns dataframe with date column fixed.
-convert_to_date <- function(df, colname = 'date') {
-    df[[colname]] %<>% as.POSIXct(x = ., origin = '1970-01-01')
-
-    return(df)
+#' @export
+sqlite2posix <- function(x) {
+    as.POSIXct(x, origin = '1970-01-01')
 }

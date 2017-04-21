@@ -2,18 +2,20 @@
 % Please edit documentation in R/utils.R
 \name{nfl_insert}
 \alias{nfl_insert}
-\title{nfl_insert}
+\title{dfs_insert}
 \usage{
-nfl_insert(db_name = Sys.getenv("SQLITE_DB"), table, df)
+nfl_insert(db_path = Sys.getenv("DFS_DB"), table, df, ...)
 }
 \arguments{
+\item{db_path}{Path to sqlite database. Defaults to DFS_DB variable in .Renviron.}
+
 \item{table}{Name of table to write data to.}
 
 \item{df}{The dataframe to write.}
 
-\item{db_path}{Path to sqlite database. Defaults to SQLITE_DB variable in .Renviron.}
+\item{...}{additional parameters for DBI::dbWriteTAble}
 }
 \description{
-\code{nfl_insert} a utility function to insert data into nfl schema
+Function to insert data into dfs db.
 }
 
