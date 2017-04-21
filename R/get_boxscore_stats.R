@@ -78,7 +78,7 @@ get_boxscore_stats <- function(url, insert = FALSE) {
     }
     # create table home_date to join with who was home / away based on header
     # and date of game
-    nfl_teams <- db_query(query = 'select * from nfl_teams')
+    nfl_teams <- dfs_query(query = 'select * from nfl_teams')
 
     matchup_date <- xml2::read_html(url) %>%
         rvest::html_node('h1') %>%
@@ -154,7 +154,7 @@ get_boxscore_stats <- function(url, insert = FALSE) {
     fill_def_stats[, 3:16][blanks[, 3:16]] <- 0
     fill_def_stats[17:19] %<>% lapply(., zoo::na.locf)
 
-    week_date <- db_query(query = 'select * from nfl_week_date') %>%
+    week_date <- dfs_query(query = 'select * from nfl_week_date') %>%
         dplyr::mutate(date = as.POSIXct(date, format = '%Y-%m-%d'))
 
     off_stats %<>%
@@ -175,8 +175,8 @@ get_boxscore_stats <- function(url, insert = FALSE) {
         )
 
     if (insert) {
-        db_insert(table = 'nfl_offense', df = off_stats)
-        db_insert(table = 'nfl_defense', df = def_stats)
+        dfs_insert(table = 'nfl_offense', df = off_stats, append = TRUE)
+        dfs_insert(table = 'nfl_defense', df = def_stats, append = TRUE)
         invisible(list(off_stats = off_stats, def_stats = fill_def_stats))
     } else {
         return(list(off_stats = off_stats, def_stats = fill_def_stats))

@@ -6,7 +6,7 @@
 #'
 #' @return results of query in a dataframe
 #' @export
-nfl_query <- function(
+dfs_query <- function(
     db_path = Sys.getenv('DFS_DB'),
     query
 ) {
@@ -28,7 +28,7 @@ nfl_query <- function(
 #' @param ... additional parameters for DBI::dbWriteTAble
 #'
 #' @export
-nfl_insert <- function(
+dfs_insert <- function(
     db_path = Sys.getenv('DFS_DB'),
     table,
     df,
