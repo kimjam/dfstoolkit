@@ -17,8 +17,7 @@ get_boxscore_links <- function(year, week = 1:17) {
         .[[1]] %>%
         rvest::html_table() %>%
         janitor::clean_names() %>%
-        dplyr::filter(!week %in% c('Week', ''),
-                      !is.na(as.numeric(week)))
+        dplyr::filter(!week %in% c('Week', ''))
 
     mask <- table$week %in% week
 
