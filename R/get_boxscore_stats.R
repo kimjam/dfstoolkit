@@ -5,14 +5,17 @@
 #' @param links Player page urls
 #' @return Returns positions.
 get_nfl_positions <- function(links) {
-    positions <- sapply(
+    positions <- vapply(
         links,
         function(x)
             xml2::read_html(x) %>%
             rvest::html_nodes('#meta p:nth-child(3)') %>%
             rvest::html_text() %>%
-            stringr::str_extract('QB|RB|WR|TE|FB')
-    )
+            stringr::str_extract('QB|RB|WR|TE|FB'),
+        character(1),
+        USE.NAMES = FALSE
+    ) %>%
+        replace(., . == 'FB', 'RB')
 
     return(positions)
 }
@@ -116,8 +119,7 @@ get_nfl_boxscore_stats <- function(url, insert = FALSE) {
                     paste0('http://www.pro-football-reference.com', x)
             )
 
-        pos <- get_nfl_positions(links = player_urls) %>%
-            replace(., . == 'FB', 'RB')
+        pos <- get_nfl_positions(links = player_urls)
 
         off_stats %<>%
             dplyr::mutate(pos = pos, snaps = NA, snap_pct = NA)
