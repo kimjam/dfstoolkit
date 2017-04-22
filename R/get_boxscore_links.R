@@ -1,12 +1,12 @@
-#' @title get_boxscore_links
-#' @description Function to get links for boxscores from the schedule page.
+#' @title get_nfl_boxscore_links
+#' @description Function to get links for NFL boxscores from the schedule page.
 #'
 #' @param year Season to get links from.
 #' @param week Week interested in. Defaults to all weeks(1 - 17).
 #'
 #' @return Returns list of links.
 #' @export
-get_boxscore_links <- function(year, week = 1:17) {
+get_nfl_boxscore_links <- function(year, week = 1:17) {
     url <- sprintf(
         'http://www.pro-football-reference.com/years/%s/games.htm',
         as.character(year)

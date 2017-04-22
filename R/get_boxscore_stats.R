@@ -1,24 +1,24 @@
-#' @title get_positions
-#' @description Get player's position if snap counts table is unavailable.
+#' @title get_nfl_positions
+#' @description Get NFL player's position if snap counts table is unavailable.
 #' If player has two listed positions, first one listed will be taken.
 #'
 #' @param links Player page urls
 #' @return Returns positions.
-get_positions <- function(links) {
+get_nfl_positions <- function(links) {
     positions <- sapply(
         links,
         function(x)
             xml2::read_html(x) %>%
             rvest::html_nodes('#meta p:nth-child(3)') %>%
             rvest::html_text() %>%
-            stringr::str_extract('QB|RB|WR|TE')
+            stringr::str_extract('QB|RB|WR|TE|FB')
     )
 
     return(positions)
 }
 
-#' @title get_boxscore_stats
-#' @description Function to scrape offense stats and snap counts tables.
+#' @title get_nflboxscore_stats
+#' @description Function to scrape NFL offense stats and snap counts tables.
 #' Generates defensive tables from offense stats.
 #'
 #' @param url Url of boxscore.
@@ -28,7 +28,7 @@ get_positions <- function(links) {
 #' @return Returns list containing offensive stats (off_stats) and defensive
 #' stats (def_stats)
 #' @export
-get_boxscore_stats <- function(url, insert = FALSE) {
+get_nfl_boxscore_stats <- function(url, insert = FALSE) {
     # http://stackoverflow.com/questions/39232596/how-to-get-table-using-rvest
     html <- xml2::read_html(url) %>%
         rvest::html_node('body')
@@ -116,7 +116,9 @@ get_boxscore_stats <- function(url, insert = FALSE) {
                     paste0('http://www.pro-football-reference.com', x)
             )
 
-        pos <- get_positions(links = player_urls)
+        pos <- get_positions(links = player_urls) %>%
+            replace(., . == 'FB', 'RB')
+
         off_stats %<>%
             dplyr::mutate(pos = pos, snaps = NA, snap_pct = NA)
         warning('Missing snap counts, check positions.')

@@ -1,5 +1,5 @@
-#' @title get_week_dates
-#' @description Function to get the dates for each week.
+#' @title get_nfl_week_dates
+#' @description Function to get the dates for each NFL week.
 #'
 #' @param year Season to get data for.
 #' @param insert Should the function insert data into nfl_week_date table?
@@ -7,7 +7,7 @@
 #'
 #' @return Returns dataframe of dates for each week.
 #' @export
-get_week_dates <- function(year, insert = FALSE) {
+get_nfl_week_dates <- function(year, insert = FALSE) {
     sched_url <- sprintf(
         'http://www.pro-football-reference.com/years/%s/games.htm',
         as.character(year)
