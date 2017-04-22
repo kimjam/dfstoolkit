@@ -4,7 +4,7 @@ Version: 0.0.0.9000
 Authors@R: person("James", "Kim", role = c('aut', 'cre'), email = "jamesykim10@gmail.com")
 Description: This package contains functions to load, clean, and utilize fantasy
     sports data to make projections for use in daily fantasy sports.
-Depends: Depends:
+Depends:
     ggplot2,
     magrittr
 License: What license is it under?

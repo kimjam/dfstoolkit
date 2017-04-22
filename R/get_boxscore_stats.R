@@ -116,7 +116,7 @@ get_nfl_boxscore_stats <- function(url, insert = FALSE) {
                     paste0('http://www.pro-football-reference.com', x)
             )
 
-        pos <- get_positions(links = player_urls) %>%
+        pos <- get_nfl_positions(links = player_urls) %>%
             replace(., . == 'FB', 'RB')
 
         off_stats %<>%
