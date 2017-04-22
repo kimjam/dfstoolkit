@@ -1,3 +1,22 @@
+#' @title get_positions
+#' @description Get player's position if snap counts table is unavailable.
+#' If player has two listed positions, first one listed will be taken.
+#'
+#' @param links Player page urls
+#' @return Returns positions.
+get_positions <- function(links) {
+    positions <- sapply(
+        links,
+        function(x)
+            xml2::read_html(x) %>%
+            rvest::html_nodes('#meta p:nth-child(3)') %>%
+            rvest::html_text() %>%
+            stringr::str_extract('QB|RB|WR|TE')
+    )
+
+    return(positions)
+}
+
 #' @title get_boxscore_stats
 #' @description Function to scrape offense stats and snap counts tables.
 #' Generates defensive tables from offense stats.
@@ -73,8 +92,34 @@ get_boxscore_stats <- function(url, insert = FALSE) {
             dplyr::mutate(snaps = as.numeric(snaps),
                           snap_pct = readr::parse_number(snap_pct),
                           pos = replace(pos, pos == 'FB', 'RB'))
+
+        # join snap data, home, date, to offensive stats
+        off_stats %<>%
+            dplyr::left_join(
+                y = snap_counts %>%
+                    dplyr::select(
+                        player,
+                        pos,
+                        snaps,
+                        snap_pct
+                    ),
+                by = 'player'
+            )
     } else {
-        stop
+        # fill snaps, snap_pct with NA, impute when analyzing
+        player_urls <- html %>%
+            rvest::html_nodes('#player_offense a') %>%
+            rvest::html_attr('href') %>%
+            sapply(
+                .,
+                function(x)
+                    paste0('http://www.pro-football-reference.com', x)
+            )
+
+        pos <- get_positions(links = player_urls)
+        off_stats %<>%
+            dplyr::mutate(pos = pos, snaps = NA, snap_pct = NA)
+        warning('Missing snap counts, check positions.')
     }
     # create table home_date to join with who was home / away based on header
     # and date of game
@@ -97,18 +142,7 @@ get_boxscore_stats <- function(url, insert = FALSE) {
 
     home_date %<>% dplyr::left_join(y = nfl_teams, by = 'team_long')
 
-    # join snap data, home, date, to offensive stats
     off_stats %<>%
-        dplyr::left_join(
-            y = snap_counts %>%
-                dplyr::select(
-                    player,
-                    pos,
-                    snaps,
-                    snap_pct
-                ),
-            by = 'player'
-        ) %>%
         dplyr::left_join(
             y = home_date %>% dplyr::select(-team_long),
             by = c('tm' = 'team_abbr')
