@@ -1,0 +1,95 @@
+---
+title: "Scraping NFL Boxscore Statistics with dfstoolkit"
+author: "James Kim"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+library(dfstoolkit)
+```
+## Starting from Scratch
+
+Before scraping NFL box score statistics, you will need to set up a SQLite database that has two tables:
+
+* nfl_teams
+    * team_long - Full team name (e.g. Philadelphia Eagles)
+    * team_abbr - 3 Letter abbreviation (e.g. PHI)
+* nfl_week_date
+    * week - NFL week
+    * date - Dates that correspond to NFL week
+    * season - NFL season
+    
+You should create the nfl_week_date table before the start of the season so that it's information is available when you are scraping the current season.
+
+Once these two tables are set up, make sure you have DFS_DB set up in your .Renviron file.
+
+I populated nfl_teams manually, although I'm sure you could scrape it. You can create the nfl_week_date table for 2012 - 2016 by:
+
+```{r nfl-week-date-etl, eval=FALSE}
+library(dfstoolkit)
+
+week_date <- lapply(2012:2016, function(x) get_nfl_week_dates(year = x)) %>%
+    dplyr::bind_rows()
+
+dfs_insert(table = 'nfl_week_date', df = week_date, overwrite = TRUE)
+```
+
+Now, to scrape the boxscore statistics from 2012 - 2016:
+
+```{r nfl-box-score_stats, eval=FALSE}
+off_list <- vector('list', length(2012:2016))
+def_list <- vector('list', length(2012:2016))
+for (year in 2014:2016) {
+  links <- get_nfl_boxscore_links(year)
+  stats <- lapply(links, get_nfl_boxscore_stats)
+
+  off_list[[match(year, 2012:2016)]] <- dplyr::bind_rows(
+      lapply(stats, `[[`, 'off_stats')
+  )
+  
+  def_list[[match(year, 2012:2016)]] <- dplyr::bind_rows(
+      lapply(stats, `[[`, 'def_stats')
+  )
+}
+offense <- dplyr::bind_rows(off_list)
+defense <- dplyr::bind_rows(def_list)
+
+dfs_insert(table = 'nfl_offense', df = offense, overwrite = TRUE)
+dfs_insert(table = 'nfl_defense', df = defense, overwrite = TRUE)
+```
+
+```{r data, include=FALSE}
+off <- dfs_query(query = 'select * from nfl_offense limit 10;')
+def <- dfs_query(query = 'select * from nfl_defense limit 10;')
+```
+
+The offense table will look like:
+```{r off, echo=FALSE}
+dplyr::glimpse(off)
+```
+
+The defense table will look like:
+```{r def, echo=FALSE}
+dplyr::glimpse(def)
+```
+
+## Adding Data from Previous Week
+
+During the season, you'll want to add data from the previous week into your database. For example, if you want to add week 1 data from the 2016 season, you would run this code:
+
+```{r update, eval=FALSE}
+links <- get_nfl_boxscore_links(year = 2016, week = 1)
+stats <- lapply(links, get_nfl_boxscore_stats)
+
+offense <- dplyr::bind_rows(lapply(stats, `[[`, 'off_stats'))
+defense <- dplyr::bind_rows(lapply(stats, `[[`, 'def_stats'))
+
+# append instead of overwrite
+dfs_insert(table = 'nfl_offense', df = offense, append = TRUE)
+dfs_insert(table = 'nfl_defense', df = defense, append = TRUE)
+```
