@@ -20,5 +20,6 @@ Imports:
     purrr,
     RSQLite,
     rvest,
+    stringr,
     tidyr
 RoxygenNote: 5.0.1
