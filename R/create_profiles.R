@@ -39,7 +39,8 @@ create_profiles <- function(df, window_size = 3) {
                  projection = projections,
                  opp = opp),
             .f = list
-        )
+        ) %>%
+          lapply(., function(x) x %>% setNames(c('profile', 'projection', 'opp')))
         return(profiles)
     }
 }
