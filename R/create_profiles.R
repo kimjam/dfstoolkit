@@ -21,7 +21,7 @@ create_profiles <- function(df, window_size = 3) {
     } else {
         starts <- 1:(max(df$row_index) - window_size)
         ends <- starts + window_size - 1
-        projections <- ends + 1
+        proj_inds <- ends + 1
 
         profs <- purrr::map2(
             .x = starts,
@@ -31,12 +31,14 @@ create_profiles <- function(df, window_size = 3) {
                 dplyr::arrange(stat, row_index)
         )
 
-        projections <- df$dk_pts[projections]
+        projections <- df$dk_pts[proj_inds]
+        opp <- df$opp[proj_inds]
 
-        profiles <- purrr::map2(
-            .x = profs,
-            .y = projections,
-            .f = ~list(profile = .x, projection = .y)
+        profiles <- purrr::pmap(
+            list(profs = profs,
+                 projection = projections,
+                 opp = opp),
+            .f = list
         )
         return(profiles)
     }
