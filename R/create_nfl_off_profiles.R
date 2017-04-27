@@ -1,12 +1,12 @@
-#' @title create_profiles
-#' @description Function to create profiles for players.
+#' @title create_nfl_off_profiles
+#' @description Function to create profiles for NFL players.
 #'
 #' @param df Dataframe to create profiles from.
 #' @param window_size Size of rolling window. Defaults to 3.
 #'
-#' @return Returns nested list of lists containing profile and projection.
+#' @return Returns nested list of lists containing profile, projection, and opponent.
 #' @export
-create_profiles <- function(df, window_size = 3) {
+create_nfl_off_profiles <- function(df, window_size = 3) {
 
     df %<>%
         dplyr::arrange(date) %>%
