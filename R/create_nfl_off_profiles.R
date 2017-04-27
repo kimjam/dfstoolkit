@@ -1,4 +1,4 @@
-#' @title create_profiles
+#' @title create_nfl_off_profiles
 #' @description Function to create profiles for players.
 #'
 #' @param df Dataframe to create profiles from.
@@ -6,7 +6,7 @@
 #'
 #' @return Returns nested list of lists containing profile and projection.
 #' @export
-create_profiles <- function(df, window_size = 3) {
+create_nfl_off_profiles <- function(df, window_size = 3) {
 
     df %<>%
         dplyr::arrange(date) %>%
