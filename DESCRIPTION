@@ -5,8 +5,7 @@ Authors@R: person("James", "Kim", role = c('aut', 'cre'), email = "jamesykim10@g
 Description: This package contains functions to load, clean, and utilize fantasy
     sports data to make projections for use in daily fantasy sports.
 Depends:
-    ggplot2,
-    magrittr
+    ggplot2
 License: What license is it under?
 LazyData: true
 Imports:
@@ -15,6 +14,7 @@ Imports:
     janitor,
     lpSolve,
     lubridate,
+    magrittr,
     purrr,
     RSQLite,
     rvest,

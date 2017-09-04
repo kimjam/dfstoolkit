@@ -1,3 +1,11 @@
+#' @importFrom magrittr %>%
+#' @export
+magrittr::`%>%`
+
+#' @importFrom magrittr %<>%
+#' @export
+magrittr::`%<>%`
+
 #' @title dfs_query
 #' @description Function to get data from dfs db.
 #'
